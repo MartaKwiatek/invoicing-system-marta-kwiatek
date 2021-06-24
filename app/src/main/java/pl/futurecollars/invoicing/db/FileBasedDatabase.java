@@ -5,27 +5,21 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import pl.futurecollars.invoicing.config.Configuration;
+import lombok.extern.slf4j.Slf4j;
 import pl.futurecollars.invoicing.model.Invoice;
 import pl.futurecollars.invoicing.service.IdService;
 import pl.futurecollars.invoicing.service.JsonService;
 
+@Slf4j
 public class FileBasedDatabase implements Database {
 
     private final File invoicesFile;
     private final Path invoicesPath;
     private final IdService idService;
     private final JsonService jsonService = new JsonService();
-
-    public FileBasedDatabase() {
-        invoicesFile = new File(Configuration.INVOICES_PATH);
-        invoicesPath = Path.of(Configuration.INVOICES_PATH);
-        idService = new IdService(Path.of(Configuration.ID_PATH));
-    }
 
     public FileBasedDatabase(File invoicesFile, Path invoicesPath, IdService idService) {
         this.invoicesFile = invoicesFile;
@@ -44,10 +38,8 @@ public class FileBasedDatabase implements Database {
                     invoicesFile.exists() ? StandardOpenOption.APPEND : StandardOpenOption.CREATE_NEW);
             return id;
         } catch (IOException exception) {
-            exception.printStackTrace();
+            throw new RuntimeException("Saving invoice to database failed", exception);
         }
-
-        return -1;
     }
 
     @Override
@@ -68,9 +60,8 @@ public class FileBasedDatabase implements Database {
                     .map(jsonService::stringToObject)
                     .collect(Collectors.toList());
         } catch (IOException exception) {
-            exception.printStackTrace();
+            throw new RuntimeException("Getting all invoices from database failed", exception);
         }
-        return Collections.emptyList();
     }
 
     @Override
@@ -87,14 +78,18 @@ public class FileBasedDatabase implements Database {
                     .map(invoice -> updatedInvoice(invoice, id, updatedInvoiceAsString))
                     .collect(Collectors.joining("\n"));
             Files.writeString(invoicesPath, ivoicesAsString, StandardOpenOption.TRUNCATE_EXISTING);
-
         } catch (IOException exception) {
             exception.printStackTrace();
+//            log.error("Error message");
         }
     }
 
+    private boolean findById(String line, int id) {
+        return line.contains("\"id\":" + id + ",");
+    }
+
     private String updatedInvoice(String oldInvoiceAsString, int id, String updatedInvoiceAsString) {
-        return oldInvoiceAsString.contains("\"id\":" + id + ",") ? updatedInvoiceAsString : oldInvoiceAsString;
+        return findById(oldInvoiceAsString, id) ? updatedInvoiceAsString : oldInvoiceAsString;
     }
 
     @Override
@@ -102,7 +97,7 @@ public class FileBasedDatabase implements Database {
         try {
             String reducedInvoices = Files.readAllLines(invoicesPath)
                     .stream()
-                    .filter(line -> !line.contains("\"id\":" + id + ","))
+                    .filter(line -> !findById(line, id))
                     .collect(Collectors.joining("\n"));
 
             Files.writeString(invoicesPath, reducedInvoices, StandardOpenOption.TRUNCATE_EXISTING);
