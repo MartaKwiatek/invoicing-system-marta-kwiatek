@@ -16,15 +16,24 @@ import pl.futurecollars.invoicing.service.JsonService;
 @Log
 public class FileBasedDatabase implements Database {
 
-    private final File invoicesFile;
+    private File invoicesFile;
     private final Path invoicesPath;
     private final IdService idService;
-    private final JsonService jsonService = new JsonService();
+    private final JsonService jsonService;
 
-    public FileBasedDatabase(File invoicesFile, Path invoicesPath, IdService idService) {
-        this.invoicesFile = invoicesFile;
+    public FileBasedDatabase(Path invoicesPath, IdService idService, JsonService jsonService) {
         this.invoicesPath = invoicesPath;
         this.idService = idService;
+        this.jsonService = jsonService;
+
+        try {
+            invoicesFile = new File(String.valueOf(invoicesPath));
+            if (!invoicesFile.exists()) {
+                invoicesFile.createNewFile();
+            }
+        } catch (IOException exception) {
+            log.info("Creation of invoice file failed");
+        }
     }
 
     @Override
@@ -65,10 +74,8 @@ public class FileBasedDatabase implements Database {
     }
 
     @Override
-    public void update(int id, Invoice updatedInvoice) {
-        if (getById(id).isEmpty()) {
-            throw new IllegalArgumentException("Invoice id: " + id + " doesn't exist");
-        }
+    public Optional<Invoice> update(int id, Invoice updatedInvoice) {
+        Optional<Invoice> toUpdate = getById(id);
         updatedInvoice.setId(id);
         String updatedInvoiceAsString = jsonService.objectToString(updatedInvoice).trim();
 
@@ -78,8 +85,9 @@ public class FileBasedDatabase implements Database {
                     .map(invoice -> updatedInvoice(invoice, id, updatedInvoiceAsString))
                     .collect(Collectors.joining("\n"));
             Files.writeString(invoicesPath, ivoicesAsString, StandardOpenOption.TRUNCATE_EXISTING);
+            return toUpdate;
         } catch (IOException exception) {
-            log.info("Updating invoice failed");
+            throw new RuntimeException("Updating invoice failed", exception);
         }
     }
 
@@ -92,7 +100,8 @@ public class FileBasedDatabase implements Database {
     }
 
     @Override
-    public void delete(int id) {
+    public Optional<Invoice> delete(int id) {
+        Optional<Invoice> toDelete = getById(id);
         try {
             String reducedInvoices = Files.readAllLines(invoicesPath)
                     .stream()
@@ -100,8 +109,9 @@ public class FileBasedDatabase implements Database {
                     .collect(Collectors.joining("\n"));
 
             Files.writeString(invoicesPath, reducedInvoices, StandardOpenOption.TRUNCATE_EXISTING);
+            return toDelete;
         } catch (IOException exception) {
-            log.info("Deleting invoice failed");
+            throw new RuntimeException("Deleting invoice failed");
         }
     }
 }

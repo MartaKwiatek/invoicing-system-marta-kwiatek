@@ -68,9 +68,9 @@ class InvoiceServiceIntegrationTest extends Specification{
         service.getAll().isEmpty()
     }
 
-    def "deleting not existing invoice is not causing any error"() {
+    def "deleting not existing invoice returns Optional.empty()"() {
         expect:
-        service.delete(666)
+        service.delete(666) == Optional.empty()
     }
 
     def "it's possible to update the invoice"() {
@@ -84,12 +84,8 @@ class InvoiceServiceIntegrationTest extends Specification{
         service.getById(id).get() == invoices.get(1)
     }
 
-    def "updating not existing invoice throws exception"() {
-        when:
-        service.update(666, invoices.get(1))
-
-        then:
-        def ex = thrown(IllegalArgumentException)
-        ex.message == "Invoice id: 666 doesn't exist"
+    def "updating not existing invoice returns Optional.empty()"() {
+        expect:
+        service.update(666, invoices.get(1)) == Optional.empty()
     }
 }
