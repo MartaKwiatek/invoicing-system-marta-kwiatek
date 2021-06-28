@@ -1,4 +1,4 @@
-package pl.futurecollars.invoicing.db;
+package pl.futurecollars.invoicing.db.file;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.extern.java.Log;
+import pl.futurecollars.invoicing.db.Database;
 import pl.futurecollars.invoicing.model.Invoice;
 import pl.futurecollars.invoicing.service.IdService;
 import pl.futurecollars.invoicing.service.JsonService;
@@ -43,8 +44,8 @@ public class FileBasedDatabase implements Database {
         idService.setId();
 
         try {
-            Files.writeString(invoicesPath, jsonService.objectToString(invoice),
-                    invoicesFile.exists() ? StandardOpenOption.APPEND : StandardOpenOption.CREATE_NEW);
+            Files.writeString(invoicesPath, jsonService.objectToString(invoice), invoicesFile.exists()
+                    ? StandardOpenOption.APPEND : StandardOpenOption.CREATE_NEW);
             return id;
         } catch (IOException exception) {
             throw new RuntimeException("Saving invoice to database failed", exception);
