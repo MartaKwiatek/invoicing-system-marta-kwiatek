@@ -17,11 +17,11 @@ class IdServiceTest extends Specification{
         ['1'] == Files.readAllLines(nextIdPath)
 
         and:
-        idService.setId()
+        idService.incrementId()
         ['2'] == Files.readAllLines(nextIdPath)
 
         and:
-        idService.setId()
+        idService.incrementId()
         ['3'] == Files.readAllLines(nextIdPath)
     }
 
@@ -34,15 +34,15 @@ class IdServiceTest extends Specification{
         ['666'] == Files.readAllLines(nextIdPath)
 
         and:
-        idService.setId()
+        idService.incrementId()
         ['667'] == Files.readAllLines(nextIdPath)
 
         and:
-        idService.setId()
+        idService.incrementId()
         ['668'] == Files.readAllLines(nextIdPath)
 
         and:
-        idService.setId()
+        idService.incrementId()
         ['669'] == Files.readAllLines(nextIdPath)
     }
     }

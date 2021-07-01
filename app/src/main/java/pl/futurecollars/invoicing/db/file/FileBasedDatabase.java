@@ -29,9 +29,7 @@ public class FileBasedDatabase implements Database {
 
         try {
             invoicesFile = new File(String.valueOf(invoicesPath));
-            if (!invoicesFile.exists()) {
-                invoicesFile.createNewFile();
-            }
+            invoicesFile.createNewFile();
         } catch (IOException exception) {
             log.info("Creation of invoice file failed");
         }
@@ -41,7 +39,7 @@ public class FileBasedDatabase implements Database {
     public int save(Invoice invoice) {
         int id = idService.getId();
         invoice.setId(id);
-        idService.setId();
+        idService.incrementId();
 
         try {
             Files.writeString(invoicesPath, jsonService.objectToString(invoice), invoicesFile.exists()

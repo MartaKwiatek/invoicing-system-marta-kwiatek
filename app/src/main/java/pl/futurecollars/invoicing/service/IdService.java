@@ -15,7 +15,7 @@ public class IdService {
         this.idFilePath = idFilePath;
         try {
             File idFile = new File(String.valueOf(idFilePath));
-            if (!idFile.exists() || Files.readString(Paths.get(String.valueOf(idFilePath))).isEmpty()) {
+            if (Files.readString(Paths.get(String.valueOf(idFilePath))).isEmpty()) {
                 idFile.createNewFile();
                 Files.writeString(idFilePath, String.valueOf(id));
             }
@@ -35,7 +35,7 @@ public class IdService {
         return id;
     }
 
-    public void setId() {
+    public void incrementId() {
         try {
             Files.writeString(idFilePath, String.valueOf(getId() + 1));
         } catch (IOException exception) {
