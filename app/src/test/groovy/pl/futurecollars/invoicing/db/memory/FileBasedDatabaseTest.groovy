@@ -2,7 +2,7 @@ package pl.futurecollars.invoicing.db.memory
 
 import pl.futurecollars.invoicing.TestHelpers
 import pl.futurecollars.invoicing.db.Database
-import pl.futurecollars.invoicing.db.FileBasedDatabase
+import pl.futurecollars.invoicing.db.file.FileBasedDatabase
 import pl.futurecollars.invoicing.service.IdService
 import pl.futurecollars.invoicing.service.JsonService
 

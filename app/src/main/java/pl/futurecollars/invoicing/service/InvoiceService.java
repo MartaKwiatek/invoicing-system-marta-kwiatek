@@ -2,14 +2,19 @@ package pl.futurecollars.invoicing.service;
 
 import java.util.List;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 import pl.futurecollars.invoicing.db.Database;
 import pl.futurecollars.invoicing.model.Invoice;
 
-@AllArgsConstructor
+@Service
 public class InvoiceService {
 
     private final Database database;
+
+    public InvoiceService(@Qualifier("fileBasedDatabase") Database database) {
+        this.database = database;
+    }
 
     public int save(Invoice invoice) {
         return database.save(invoice);
