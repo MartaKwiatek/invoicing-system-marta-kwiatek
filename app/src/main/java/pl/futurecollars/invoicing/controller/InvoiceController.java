@@ -23,7 +23,7 @@ public class InvoiceController {
         this.invoiceService = invoiceService;
     }
 
-    @GetMapping
+    @GetMapping(produces = {"application/json;charset=UTF-8"})
     public List<Invoice> getAllInvoices() {
         return invoiceService.getAll();
     }
@@ -33,7 +33,7 @@ public class InvoiceController {
         return invoiceService.save(invoiceRq);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(value = "/{id}", produces = {"application/json;charset=UTF-8"})
     public ResponseEntity<Invoice> getSingleInvoiceById(@PathVariable int id) {
         return invoiceService.getById(id)
                 .map(invoice -> ResponseEntity.ok().body(invoice))
