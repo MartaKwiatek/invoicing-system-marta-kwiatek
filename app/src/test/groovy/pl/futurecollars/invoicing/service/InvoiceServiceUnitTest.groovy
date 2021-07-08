@@ -66,4 +66,48 @@ class InvoiceServiceUnitTest extends Specification{
         then:
         1 * database.update(invoice.getId(), invoice)
     }
+
+    def "exception test when trying to save"() {
+        setup:
+        database.save(invoice(1)) >> {throw new RuntimeException("Saving invoice to database failed")}
+
+        when:
+        service.save(invoice(1))
+
+        then:
+        RuntimeException exception = thrown()
+    }
+
+    def "exception test when trying to getAll"() {
+        setup:
+        database.getAll() >> {throw new RuntimeException("Getting all invoices from database failed")}
+
+        when:
+        service.getAll()
+
+        then:
+        RuntimeException exception = thrown()
+    }
+
+    def "exception test when trying to updating"() {
+        setup:
+        database.update(1, invoice(3)) >> {throw new RuntimeException("Updating invoice failed")}
+
+        when:
+        service.update(1, invoice(3))
+
+        then:
+        RuntimeException exception = thrown()
+    }
+
+    def "exception test when trying to delete"() {
+        setup:
+        database.delete(1) >> {throw new RuntimeException("Deleting invoice failed")}
+
+        when:
+        service.delete(1)
+
+        then:
+        RuntimeException exception = thrown()
+    }
 }
