@@ -18,7 +18,7 @@ public class JsonService {
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 
-    public String objectToString(Invoice invoice) {
+    public String objectToJsonString(Invoice invoice) {
         try {
             return objectMapper.writeValueAsString(invoice) + "\n";
         } catch (JsonProcessingException e) {
@@ -26,9 +26,9 @@ public class JsonService {
         }
     }
 
-    public Invoice stringToObject(String objectAsString) {
+    public <T> T stringToObject(String objectAsString, Class<T> className) {
         try {
-            return objectMapper.readValue(objectAsString, Invoice.class);
+            return objectMapper.readValue(objectAsString, className);
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Serialization from string to object failed", e);
         }

@@ -42,7 +42,7 @@ public class FileBasedDatabase implements Database {
         idService.incrementId();
 
         try {
-            Files.writeString(invoicesPath, jsonService.objectToString(invoice), invoicesFile.exists()
+            Files.writeString(invoicesPath, jsonService.objectToJsonString(invoice), invoicesFile.exists()
                     ? StandardOpenOption.APPEND : StandardOpenOption.CREATE_NEW);
             return id;
         } catch (IOException exception) {
@@ -65,7 +65,7 @@ public class FileBasedDatabase implements Database {
         try {
             return Files.readAllLines(invoicesPath)
                     .stream()
-                    .map(jsonService::stringToObject)
+                    .map(objectAsString -> jsonService.stringToObject(objectAsString, Invoice.class))
                     .collect(Collectors.toList());
         } catch (IOException exception) {
             throw new RuntimeException("Getting all invoices from database failed", exception);
@@ -76,14 +76,14 @@ public class FileBasedDatabase implements Database {
     public Optional<Invoice> update(int id, Invoice updatedInvoice) {
         Optional<Invoice> toUpdate = getById(id);
         updatedInvoice.setId(id);
-        String updatedInvoiceAsString = jsonService.objectToString(updatedInvoice).trim();
+        String updatedInvoiceAsString = jsonService.objectToJsonString(updatedInvoice).trim();
 
         try {
-            String ivoicesAsString = Files.readAllLines(invoicesPath)
+            String invoicesAsString = Files.readAllLines(invoicesPath)
                     .stream()
                     .map(invoice -> updatedInvoice(invoice, id, updatedInvoiceAsString))
                     .collect(Collectors.joining("\n"));
-            Files.writeString(invoicesPath, ivoicesAsString, StandardOpenOption.TRUNCATE_EXISTING);
+            Files.writeString(invoicesPath, invoicesAsString, StandardOpenOption.TRUNCATE_EXISTING);
             return toUpdate;
         } catch (IOException exception) {
             throw new RuntimeException("Updating invoice failed", exception);
