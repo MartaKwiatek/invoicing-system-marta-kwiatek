@@ -3,7 +3,7 @@ spring:
     allow-bean-definition-overriding: true
 
   profiles:
-    active: dev
+    active: default
 
 invoicing-system:
   database: file
