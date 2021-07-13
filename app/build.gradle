@@ -51,10 +51,6 @@ application {
     mainClass = 'pl.futurecollars.invoicing.App'
 }
 
-tasks.named('test') {
-    useJUnitPlatform()
-}
-
 test {
     finalizedBy jacocoTestReport
 }
