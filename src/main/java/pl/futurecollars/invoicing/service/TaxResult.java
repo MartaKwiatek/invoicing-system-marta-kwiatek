@@ -4,16 +4,18 @@ import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
+@NoArgsConstructor
 @Data
 @Builder
 public class TaxResult {
 
-    BigDecimal income;
-    BigDecimal costs;
-    BigDecimal incomingVat;
-    BigDecimal outgoingVat;
-    BigDecimal earnings;
-    BigDecimal vatToPay;
+    private BigDecimal income;
+    private BigDecimal costs;
+    private BigDecimal incomingVat;
+    private BigDecimal outgoingVat;
+    private BigDecimal earnings;
+    private BigDecimal vatToPay;
 }
