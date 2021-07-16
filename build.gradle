@@ -57,7 +57,6 @@ application {
 }
 
 tasks.named('test') {
-    // Use junit platform for unit tests.
     useJUnitPlatform()
 }
 
@@ -77,13 +76,13 @@ jacocoTestCoverageVerification {
         rule {
             limit {
                 counter = 'BRANCH'
-                minimum = 0.82
+                minimum = 0.85
             }
         }
         rule {
             limit {
                 counter = 'LINE'
-                minimum = 0.82
+                minimum = 0.85
             }
         }
     }
