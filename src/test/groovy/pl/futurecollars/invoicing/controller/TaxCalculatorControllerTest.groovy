@@ -5,32 +5,32 @@ import static pl.futurecollars.invoicing.TestHelpers.company
 class TaxCalculatorControllerTest extends ControllerTest{
 
     def "zeros are returned when no invoices were created"() {
-//        when:
-//        def response = calculateTax(company(0))
-//
-//        then:
-//        response.income == 0
-//        response.costs == 0
-//        response.incomingVat == 0
-//        response.outgoingVat == 0
-//        response.earnings == 0
-//        response.vatToPay == 0
+        when:
+        def response = calculateTax(company(0))
+
+        then:
+        response.income == 0
+        response.costs == 0
+        response.incomingVat == 0
+        response.outgoingVat == 0
+        response.earnings == 0
+        response.vatToPay == 0
     }
 
     def "zeros are returned when taxIdNumber not exist in database"() {
-//        given:
-//        addInvoices(10)
-//
-//        when:
-//        def response = calculateTax(company(-1))
-//
-//        then:
-//        response.income == 0
-//        response.costs == 0
-//        response.incomingVat == 0
-//        response.outgoingVat == 0
-//        response.earnings == 0
-//        response.vatToPay == 0
+        given:
+        addInvoices(10)
+
+        when:
+        def response = calculateTax(company(-1))
+
+        then:
+        response.income == 0
+        response.costs == 0
+        response.incomingVat == 0
+        response.outgoingVat == 0
+        response.earnings == 0
+        response.vatToPay == 0
     }
 
     def "correct values are returned when providing correct taxIdNumber"() {
