@@ -1,10 +1,12 @@
 package pl.futurecollars.invoicing.service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.function.Predicate;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.futurecollars.invoicing.db.Database;
+import pl.futurecollars.invoicing.model.Company;
 import pl.futurecollars.invoicing.model.Invoice;
 import pl.futurecollars.invoicing.model.InvoiceEntry;
 
@@ -19,33 +21,62 @@ public class TaxCalculatorService {
     }
 
     public BigDecimal costs(String taxIdNumber) {
-        return database.visit(buyerPredicate(taxIdNumber), InvoiceEntry::getPrice);
+        return database.visit(buyerPredicate(taxIdNumber), this::getCostsIncludingPersonalExpense);
     }
 
-    public BigDecimal incomingVat(String taxIdNumber) {
-        return database.visit(sellerPredicate(taxIdNumber), InvoiceEntry::getVatValue);
-    }
-
-    public BigDecimal outgoingVat(String taxIdNumber) {
-        return database.visit(buyerPredicate(taxIdNumber), InvoiceEntry::getVatValue);
+    private BigDecimal getCostsIncludingPersonalExpense(InvoiceEntry invoiceEntry) {
+        return invoiceEntry.getPrice()
+                .add(invoiceEntry.getVatValue())
+                .subtract(getVatValueIncludingPersonalExpense(invoiceEntry));
     }
 
     public BigDecimal earnings(String taxIdNumber) {
         return income(taxIdNumber).subtract(costs(taxIdNumber));
     }
 
-    public BigDecimal vatToPay(String taxIdNumber) {
-        return incomingVat(taxIdNumber).subtract(outgoingVat(taxIdNumber));
+    public BigDecimal incomingVat(String taxIdNumber) {
+        return database.visit(sellerPredicate(taxIdNumber), InvoiceEntry::getVatValue);
     }
 
-    public TaxResult calculateTaxes(String taxIdNumber) {
+    public BigDecimal outgoingVat(Company company) {
+        return database.visit(buyerPredicate(company.getTaxIdNumber()), this::getVatValueIncludingPersonalExpense);
+    }
+
+    private BigDecimal getVatValueIncludingPersonalExpense(InvoiceEntry invoiceEntry) {
+        return invoiceEntry.getCarExpense().isIncludingPrivateExpense()
+                ? invoiceEntry.getVatValue().multiply(BigDecimal.valueOf(0.5).setScale(2, RoundingMode.FLOOR)) :
+                invoiceEntry.getVatValue();
+    }
+
+    public BigDecimal vatToPay(Company company) {
+        return incomingVat(company.getTaxIdNumber()).subtract(outgoingVat(company));
+    }
+
+    public TaxResult calculateTaxes(Company company) {
+        BigDecimal earningsMinusPensionInsurance = earnings(company.getTaxIdNumber()).subtract(company.getPensionInsurance());
+        BigDecimal taxCalculationBase = earningsMinusPensionInsurance.setScale(0, RoundingMode.HALF_DOWN);
+        BigDecimal incomeTax = taxCalculationBase.multiply(BigDecimal.valueOf(19.00));
+        BigDecimal healthInsuranceFullAmount = company.getHealthInsurance().multiply(BigDecimal.valueOf(100))
+                .divide(BigDecimal.valueOf(9), RoundingMode.HALF_UP);
+        BigDecimal healthInsuranceAmountToReduceTax = healthInsuranceFullAmount.multiply(BigDecimal.valueOf(7.75))
+                .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP);
+        BigDecimal incomeTaxMinusHealthInsurance = incomeTax.subtract(healthInsuranceAmountToReduceTax);
+        BigDecimal finalIncomeTax = incomeTaxMinusHealthInsurance.setScale(0, RoundingMode.HALF_UP);
+
         return TaxResult.builder()
-                .income(income(taxIdNumber))
-                .costs(costs(taxIdNumber))
-                .incomingVat(incomingVat(taxIdNumber))
-                .outgoingVat(outgoingVat(taxIdNumber))
-                .earnings(earnings(taxIdNumber))
-                .vatToPay(vatToPay(taxIdNumber))
+                .income(income(company.getTaxIdNumber()))
+                .costs(costs(company.getTaxIdNumber()))
+                .earnings(earnings(company.getTaxIdNumber()))
+                .incomingVat(incomingVat(company.getTaxIdNumber()))
+                .outgoingVat(outgoingVat(company))
+                .vatToPay(vatToPay(company))
+                .pensionInsurance(company.getPensionInsurance())
+                .healthInsurance(company.getHealthInsurance())
+                .earningsMinusPensionInsurance(earningsMinusPensionInsurance)
+                .taxCalculationBase(taxCalculationBase)
+                .incomeTax(incomeTax)
+                .incomeTaxMinusHealthInsurance(incomeTaxMinusHealthInsurance)
+                .finalIncomeTax(finalIncomeTax)
                 .build();
     }
 

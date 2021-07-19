@@ -6,6 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import pl.futurecollars.invoicing.TestHelpers
+import pl.futurecollars.invoicing.model.Company
 import pl.futurecollars.invoicing.model.Invoice
 import pl.futurecollars.invoicing.service.JsonService
 import pl.futurecollars.invoicing.service.TaxResult
@@ -85,8 +86,11 @@ class ControllerTest extends Specification {
         getAllInvoices().each { invoice -> deleteInvoice(invoice.id) }
     }
 
-    TaxResult calculateTax(String taxIdNumber) {
-        def response = mockMvc.perform(get("$TAXES_ENDPOINT/$taxIdNumber"))
+    TaxResult calculateTax(Company company) {
+        def response = mockMvc.perform(post("$TAXES_ENDPOINT")
+                .content(jsonService.objectToJsonString(company))
+                .contentType(MediaType.APPLICATION_JSON)
+        )
                 .andExpect(status().isOk())
                 .andReturn()
                 .response
