@@ -43,9 +43,11 @@ public class TaxCalculatorService {
     }
 
     private BigDecimal getVatValueIncludingPersonalExpense(InvoiceEntry invoiceEntry) {
-        return invoiceEntry.getCarExpense().isIncludingPrivateExpense()
-                ? invoiceEntry.getVatValue().multiply(BigDecimal.valueOf(0.5).setScale(2, RoundingMode.FLOOR)) :
-                invoiceEntry.getVatValue();
+        if (invoiceEntry.getCarExpense() != null) {
+            return invoiceEntry.getVatValue().multiply(BigDecimal.valueOf(0.5).setScale(2, RoundingMode.FLOOR));
+        } else {
+            return invoiceEntry.getVatValue();
+        }
     }
 
     public BigDecimal vatToPay(Company company) {
