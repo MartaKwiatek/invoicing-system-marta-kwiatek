@@ -1,6 +1,7 @@
 package pl.futurecollars.invoicing.controller
 
 import pl.futurecollars.invoicing.model.Car
+import pl.futurecollars.invoicing.model.Company
 import pl.futurecollars.invoicing.model.Invoice
 import pl.futurecollars.invoicing.model.InvoiceEntry
 
@@ -126,5 +127,55 @@ class TaxCalculatorControllerTest extends ControllerTest {
         response.incomingVat == 0
         response.outgoingVat == 17.25
         response.vatToPay == -17.25
+    }
+
+    def "correct values are returned in all calculations"() {
+        given:
+        def myCompany = Company.builder()
+                .taxIdNumber("99999")
+                .healthInsurance(319.94)
+                .pensionInsurance(514.57)
+                .build()
+
+        def invoiceAsSeller = Invoice.builder()
+                .buyer(company(1))
+                .seller(myCompany)
+                .entries(List.of(
+                        InvoiceEntry.builder()
+                                .price(76011.62)
+                                .build()
+                ))
+                .build()
+
+        def invoiceAsBuyer = Invoice.builder()
+                .buyer(myCompany)
+                .seller(company(2))
+                .entries(List.of(
+                        InvoiceEntry.builder()
+                                .price(11329.47)
+                                .build()
+                ))
+                .build()
+
+        addOneInvoice(invoiceAsSeller)
+        addOneInvoice(invoiceAsBuyer)
+
+        when:
+        def response = calculateTax(myCompany)
+
+        then:
+        response.income == 76011.62
+        response.costs == 11329.47
+        response.earnings == 64682.15
+        response.incomingVat == 0
+        response.outgoingVat == 0
+        response.vatToPay == 0
+        response.healthInsurance == 275.50
+        response.pensionInsurance == 514.57
+        response.earningsMinusPensionInsurance == 64167.58
+        response.taxCalculationBase == 64168
+        response.incomeTax == 12191.92
+        response.incomeTaxMinusHealthInsurance == 11916.42
+        response.finalIncomeTax == 11916.00
     }
 }

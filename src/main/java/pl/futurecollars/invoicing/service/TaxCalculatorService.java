@@ -60,11 +60,9 @@ public class TaxCalculatorService {
     public TaxResult calculateTaxes(Company company) {
         BigDecimal earningsMinusPensionInsurance = earnings(company.getTaxIdNumber()).subtract(company.getPensionInsurance());
         BigDecimal taxCalculationBase = earningsMinusPensionInsurance.setScale(0, RoundingMode.HALF_DOWN);
-        BigDecimal incomeTax = taxCalculationBase.multiply(BigDecimal.valueOf(19.00));
-        BigDecimal healthInsuranceFullAmount = company.getHealthInsurance().multiply(BigDecimal.valueOf(100))
-                .divide(BigDecimal.valueOf(9), RoundingMode.HALF_UP);
-        BigDecimal healthInsuranceAmountToReduceTax = healthInsuranceFullAmount.multiply(BigDecimal.valueOf(7.75))
-                .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP);
+        BigDecimal incomeTax = taxCalculationBase.multiply(BigDecimal.valueOf(0.19));
+        BigDecimal healthInsuranceAmountToReduceTax = company.getHealthInsurance().multiply(BigDecimal.valueOf(775))
+                .divide(BigDecimal.valueOf(900), RoundingMode.HALF_UP);
         BigDecimal incomeTaxMinusHealthInsurance = incomeTax.subtract(healthInsuranceAmountToReduceTax);
         BigDecimal finalIncomeTax = incomeTaxMinusHealthInsurance.setScale(0, RoundingMode.HALF_UP);
 
@@ -76,7 +74,7 @@ public class TaxCalculatorService {
                 .outgoingVat(outgoingVat(company))
                 .vatToPay(vatToPay(company))
                 .pensionInsurance(company.getPensionInsurance())
-                .healthInsurance(company.getHealthInsurance())
+                .healthInsurance(healthInsuranceAmountToReduceTax)
                 .earningsMinusPensionInsurance(earningsMinusPensionInsurance)
                 .taxCalculationBase(taxCalculationBase)
                 .incomeTax(incomeTax)

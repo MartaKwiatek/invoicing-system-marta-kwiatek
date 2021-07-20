@@ -20,8 +20,8 @@ public class TaxResult {
     private BigDecimal outgoingVat;
     private BigDecimal vatToPay;
 
-    private BigDecimal pensionInsurance;
     private BigDecimal healthInsurance;
+    private BigDecimal pensionInsurance;
 
     private BigDecimal earningsMinusPensionInsurance;
     private BigDecimal taxCalculationBase;
