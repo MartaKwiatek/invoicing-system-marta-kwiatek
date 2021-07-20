@@ -13,6 +13,8 @@ class TestHelpers {
         .taxIdNumber("$id")
         .address("ul. Bukowińska 24d/$id 02-703 Warszawa, Polska")
         .name("iCode Trust $id Sp. z o.o")
+        .healthInsurance(BigDecimal.valueOf(id) * BigDecimal.valueOf(200))
+        .pensionInsurance(BigDecimal.valueOf(id) * BigDecimal.valueOf(50))
         .build()
     }
 
