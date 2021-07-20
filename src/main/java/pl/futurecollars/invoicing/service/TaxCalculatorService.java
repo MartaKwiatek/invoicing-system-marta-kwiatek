@@ -2,10 +2,12 @@ package pl.futurecollars.invoicing.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Optional;
 import java.util.function.Predicate;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.futurecollars.invoicing.db.Database;
+import pl.futurecollars.invoicing.model.Car;
 import pl.futurecollars.invoicing.model.Company;
 import pl.futurecollars.invoicing.model.Invoice;
 import pl.futurecollars.invoicing.model.InvoiceEntry;
@@ -43,11 +45,12 @@ public class TaxCalculatorService {
     }
 
     private BigDecimal getVatValueIncludingPersonalExpense(InvoiceEntry invoiceEntry) {
-        if (invoiceEntry.getCarExpense() != null) {
-            return invoiceEntry.getVatValue().multiply(BigDecimal.valueOf(0.5).setScale(2, RoundingMode.FLOOR));
-        } else {
-            return invoiceEntry.getVatValue();
-        }
+        return Optional.ofNullable(invoiceEntry.getCarExpense())
+                .map(Car::isIncludingPrivateExpense)
+                .map(personalUse -> personalUse ? BigDecimal.valueOf(0.5) : BigDecimal.ONE)
+                .map(multiplayer -> invoiceEntry.getVatValue().multiply(multiplayer))
+                .map(value -> value.setScale(2, RoundingMode.DOWN))
+                .orElse(invoiceEntry.getVatValue());
     }
 
     public BigDecimal vatToPay(Company company) {
