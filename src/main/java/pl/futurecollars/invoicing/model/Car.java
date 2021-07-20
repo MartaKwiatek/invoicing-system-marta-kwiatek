@@ -1,18 +1,20 @@
 package pl.futurecollars.invoicing.model;
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 
 @Data
-@RequiredArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class Car {
 
     @ApiModelProperty(value = "True if the car is also used for private purposes", required = true, example = "true")
-    private final boolean isIncludingPrivateExpense;
+    private boolean isIncludingPrivateExpense;
 
     @ApiModelProperty(value = "Car registration number", required = true, example = "DW583XX")
-    private final String registration;
+    private String registration;
 }

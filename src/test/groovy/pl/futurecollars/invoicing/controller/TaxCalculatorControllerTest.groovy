@@ -1,5 +1,9 @@
 package pl.futurecollars.invoicing.controller
 
+import pl.futurecollars.invoicing.model.Car
+import pl.futurecollars.invoicing.model.Invoice
+import pl.futurecollars.invoicing.model.InvoiceEntry
+
 import static pl.futurecollars.invoicing.TestHelpers.company
 
 class TaxCalculatorControllerTest extends ControllerTest {
@@ -79,5 +83,48 @@ class TaxCalculatorControllerTest extends ControllerTest {
         response.outgoingVat == 80.0
         response.earnings == 65000
         response.vatToPay == 5200.0
+    }
+
+    def "correct values are returned when company uses car for the personal reasons"() {
+        given:
+        def invoice = Invoice.builder()
+                .buyer(company(1))
+                .seller(company(2))
+                .entries(List.of(
+                        InvoiceEntry.builder()
+                                .price(BigDecimal.valueOf(150))
+                                .vatValue(BigDecimal.valueOf(34.51))
+                                .carExpense(
+                                        Car.builder()
+                                                .isIncludingPrivateExpense(true)
+                                                .build()
+                                )
+                                .build()
+                ))
+                .build()
+
+        addOneInvoice(invoice)
+
+        when:
+        def response = calculateTax(invoice.getSeller())
+
+        then:
+        response.income == 150
+        response.costs == 0
+        response.earnings == 150
+        response.incomingVat == 34.51
+        response.outgoingVat == 0
+        response.vatToPay == 34.51
+
+        when:
+        response = calculateTax(invoice.getBuyer())
+
+        then:
+        response.income == 0
+        response.costs == 167.26
+        response.earnings == -167.26
+        response.incomingVat == 0
+        response.outgoingVat == 17.25
+        response.vatToPay == -17.25
     }
 }
