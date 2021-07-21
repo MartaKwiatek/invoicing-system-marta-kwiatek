@@ -46,7 +46,7 @@ public class TaxCalculatorService {
 
     private BigDecimal getVatValueIncludingPersonalExpense(InvoiceEntry invoiceEntry) {
         return Optional.ofNullable(invoiceEntry.getCarExpense())
-                .map(Car::isIncludingPrivateExpense)
+                .map(Car::isPersonalUse)
                 .map(personalUse -> personalUse ? BigDecimal.valueOf(0.5) : BigDecimal.ONE)
                 .map(multiplayer -> invoiceEntry.getVatValue().multiply(multiplayer))
                 .map(value -> value.setScale(2, RoundingMode.DOWN))

@@ -18,6 +18,7 @@ import pl.futurecollars.invoicing.service.JsonService;
 public class DatabaseConfiguration {
 
     @Bean
+    @ConditionalOnProperty(name = "invoicing-system.database", havingValue = "file")
     public IdService idService(
             @Value("${invoicing-system.database.directory}") String databaseDirectory,
             @Value("${invoicing-system.database.id.file}") String idFile

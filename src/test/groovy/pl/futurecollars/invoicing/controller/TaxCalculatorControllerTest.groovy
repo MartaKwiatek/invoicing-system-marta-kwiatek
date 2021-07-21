@@ -97,7 +97,7 @@ class TaxCalculatorControllerTest extends ControllerTest {
                                 .vatValue(BigDecimal.valueOf(34.51))
                                 .carExpense(
                                         Car.builder()
-                                                .isIncludingPrivateExpense(true)
+                                                .personalUse(true)
                                                 .build()
                                 )
                                 .build()

@@ -135,6 +135,6 @@ class InvoiceControllerTest extends ControllerTest {
                 .andExpect(status().isNotFound())
 
         where:
-        id << [-76, -1, 0, 558, 580]
+        id << [-76, -1, 560, 580]
     }
 }
