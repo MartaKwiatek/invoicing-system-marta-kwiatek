@@ -20,6 +20,9 @@ plugins {
     id 'jacoco'
 }
 
+group = 'pl.futurecollars.invoicing'
+version = '0.0.1-SNAPSHOT'
+
 repositories {
     mavenCentral()
 }
@@ -29,7 +32,6 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-jdbc"
     implementation "io.springfox:springfox-boot-starter:${springFoxStarterVersion}"
     implementation "io.springfox:springfox-swagger-ui:${springFoxUiVersion}"
-    implementation 'com.google.guava:guava:30.0-jre'
 
     implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
     implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonVersion}"
@@ -44,7 +46,6 @@ dependencies {
     runtimeOnly 'com.h2database:h2:1.4.200'
     implementation "org.flywaydb:flyway-core:${flywayVersion}"
 
-    testImplementation 'org.codehaus.groovy:groovy:3.0.7'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation "org.spockframework:spock-core:${spockVersion}"
     testImplementation "org.spockframework:spock-spring:${spockVersion}"
@@ -57,10 +58,6 @@ java {
     }
 }
 
-application {
-    mainClass = 'pl.futurecollars.invoicing.App'
-}
-
 tasks.named('test') {
     useJUnitPlatform()
 }
@@ -68,6 +65,7 @@ tasks.named('test') {
 test {
     finalizedBy jacocoTestReport
 }
+
 jacocoTestReport {
     dependsOn test
 }
@@ -120,5 +118,5 @@ task testWithSQLDatabase(type: Test) {
 }
 
 check.dependsOn testWithFileDatabase
-check.dependsOn testWithFileDatabase
+check.dependsOn testWithMemoryDatabase
 //check.dependsOn testWithSqlDatabase
