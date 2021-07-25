@@ -1,11 +1,11 @@
 buildscript {
     ext {
         jacksonVersion = '2.11.1'
-        lombokVersion = '1.18.20'
-        spockVersion = '2.0-M4-groovy-3.0'
-        springBootVersion = '2.5.2'
+        lombokVersion = '1.18.16'
+        spockVersion = '1.3-groovy-2.5'
+        springBootVersion = '2.4.4'
         springFoxStarterVersion = '3.0.0'
-        springFoxUiVersion = '3.0.0'
+        springFoxUiVersion = '2.9.2'
         flywayVersion = '7.11.3'
     }
 }
@@ -13,9 +13,7 @@ buildscript {
 plugins {
     id 'org.springframework.boot' version "${springBootVersion}"
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-    id 'java'
     id 'groovy'
-    id 'application'
     id 'checkstyle'
     id 'jacoco'
 }
@@ -56,10 +54,6 @@ java {
         languageVersion = JavaLanguageVersion.of(15)
         vendor = JvmVendorSpec.ADOPTOPENJDK
     }
-}
-
-tasks.named('test') {
-    useJUnitPlatform()
 }
 
 test {
