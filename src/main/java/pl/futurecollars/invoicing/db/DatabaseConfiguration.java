@@ -9,7 +9,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import pl.futurecollars.invoicing.db.file.FileBasedDatabase;
-import pl.futurecollars.invoicing.db.memory.InMemoryDatabase;
 import pl.futurecollars.invoicing.service.IdService;
 import pl.futurecollars.invoicing.service.JsonService;
 
@@ -18,6 +17,7 @@ import pl.futurecollars.invoicing.service.JsonService;
 public class DatabaseConfiguration {
 
     @Bean
+    @ConditionalOnProperty(name = "invoicing-system.database", havingValue = "file")
     public IdService idService(
             @Value("${invoicing-system.database.directory}") String databaseDirectory,
             @Value("${invoicing-system.database.id.file}") String idFile

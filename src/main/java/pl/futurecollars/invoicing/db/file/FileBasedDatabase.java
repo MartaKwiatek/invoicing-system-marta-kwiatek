@@ -52,12 +52,15 @@ public class FileBasedDatabase implements Database {
 
     @Override
     public Optional<Invoice> getById(int id) {
-        List<Invoice> filteredInvoices = getAll()
-                .stream()
-                .filter(invoice -> invoice.getId() == id)
-                .collect(Collectors.toList());
-
-        return filteredInvoices.isEmpty() ? Optional.empty() : Optional.ofNullable(filteredInvoices.get(0));
+        try {
+            return Files.readAllLines(invoicesPath)
+                    .stream()
+                    .filter(line -> findById(line, id))
+                    .map(line -> jsonService.stringToObject(line, Invoice.class))
+                    .findFirst();
+        } catch (IOException exception) {
+            throw new RuntimeException("Getting invoice by id failed", exception);
+        }
     }
 
     @Override
@@ -91,7 +94,7 @@ public class FileBasedDatabase implements Database {
     }
 
     private boolean findById(String line, int id) {
-        return line.contains("\"id\":" + id + ",");
+        return line.contains("\"id\":" + id + ",\"date\"");
     }
 
     private String updatedInvoice(String oldInvoiceAsString, int id, String updatedInvoiceAsString) {

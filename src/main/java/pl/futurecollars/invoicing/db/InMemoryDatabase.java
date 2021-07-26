@@ -1,4 +1,4 @@
-package pl.futurecollars.invoicing.db.memory;
+package pl.futurecollars.invoicing.db;
 
 import java.util.ArrayList;
 import java.util.HashMap;
