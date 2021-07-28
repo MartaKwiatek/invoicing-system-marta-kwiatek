@@ -27,8 +27,10 @@ public class SqlDatabase implements Database {
     private final String selectQuery = "select i.id, i.date, i.number, "
             + "c1.name as seller_name, c1.tax_identification_number as seller_tax_id, c1.address as seller_address, "
             + "c1.health_insurance as seller_health_insurance, c1.pension_insurance as seller_pension_insurance, "
+            + "c1.id as seller_id, "
             + "c2.name as buyer_name, c2.tax_identification_number as buyer_tax_id , c2.address as buyer_address, "
-            + "c2.health_insurance as buyer_health_insurance, c2.pension_insurance as buyer_pension_insurance "
+            + "c2.health_insurance as buyer_health_insurance, c2.pension_insurance as buyer_pension_insurance, "
+            + "c2.id as buyer_id "
             + "from invoice i "
             + "inner join company c1 on i.seller = c1.id "
             + "inner join company c2 on i.buyer = c2.id";
@@ -153,6 +155,7 @@ public class SqlDatabase implements Database {
                     .date(rs.getDate("date").toLocalDate())
                     .number(rs.getString("number"))
                     .buyer(Company.builder()
+                            .id(rs.getInt("buyer_id"))
                             .taxIdNumber(rs.getString("buyer_tax_id"))
                             .name(rs.getString("buyer_name"))
                             .address(rs.getString("buyer_address"))
@@ -160,6 +163,7 @@ public class SqlDatabase implements Database {
                             .pensionInsurance(rs.getBigDecimal("buyer_pension_insurance"))
                             .build())
                     .seller(Company.builder()
+                            .id(rs.getInt("seller_id"))
                             .taxIdNumber(rs.getString("seller_tax_id"))
                             .name(rs.getString("seller_name"))
                             .address(rs.getString("seller_address"))
@@ -266,21 +270,23 @@ public class SqlDatabase implements Database {
             return optionalInvoice;
         }
 
+        Invoice invoice = optionalInvoice.get();
+
         deleteCars(id);
         deleteEntries(id);
 
         jdbcTemplate.update(con -> {
             PreparedStatement ps = con.prepareStatement(
-                    "delete from company where id in (?, ?)");
-            ps.setInt(1, optionalInvoice.get().getBuyer().getId());
-            ps.setInt(2, optionalInvoice.get().getSeller().getId());
+                    "delete from invoice where id = ?;");
+            ps.setInt(1, id);
             return ps;
         });
 
         jdbcTemplate.update(con -> {
             PreparedStatement ps = con.prepareStatement(
-                    "delete from invoice where id = ?;");
-            ps.setInt(1, id);
+                    "delete from company where id in (?, ?)");
+            ps.setInt(1, invoice.getBuyer().getId());
+            ps.setInt(2, invoice.getSeller().getId());
             return ps;
         });
 
