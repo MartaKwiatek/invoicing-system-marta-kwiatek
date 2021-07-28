@@ -6,7 +6,7 @@ import spock.lang.Specification
 
 import static pl.futurecollars.invoicing.TestHelpers.invoice
 
-abstract class DatabaseTest extends Specification {
+abstract class AbstractDatabaseTest extends Specification {
 
     protected Database database = getDatabaseInstance()
     protected List<Invoice> invoices = (1..12).collect { invoice(it) }

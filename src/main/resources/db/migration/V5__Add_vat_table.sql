@@ -13,6 +13,3 @@ values ('0', 0.00),
        ('8', 0.08),
        ('23', 0.23),
        ('ZW', 0.00);
-
-ALTER TABLE public.vat
-    OWNER to postgres;
