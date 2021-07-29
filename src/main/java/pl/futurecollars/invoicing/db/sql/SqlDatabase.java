@@ -270,7 +270,7 @@ public class SqlDatabase implements Database {
             return optionalInvoice;
         }
 
-        Invoice invoice = optionalInvoice.get();
+        final Invoice invoice = optionalInvoice.get();
 
         deleteCars(id);
         deleteEntries(id);
