@@ -32,13 +32,15 @@ class InvoiceControllerStepwiseTest extends Specification {
     private JsonService jsonService
 
     @Shared
-    def originalInvoice = TestHelpers.invoice(1)
+    private int invoiceId = 1
+
+    @Shared
+    def originalInvoice = TestHelpers.invoice(invoiceId)
 
     private updatedDate = LocalDate.of(2021, 07, 02)
     private static final ENDPOINT = "/invoices"
 
-    @Shared
-    private int invoiceId = 1
+
 
     def "empty array is returned when no invoices were created"() {
 
@@ -59,24 +61,23 @@ class InvoiceControllerStepwiseTest extends Specification {
         def invoiceAsJsonString = jsonService.objectToJsonString(originalInvoice)
 
         when:
-        def invoiceId = mockMvc.perform(post(ENDPOINT)
+        def invoiceId = Integer.valueOf(mockMvc.perform(post(ENDPOINT)
                 .content(invoiceAsJsonString)
                 .contentType(MediaType.APPLICATION_JSON)
         )
                 .andExpect(status().isOk())
                 .andReturn()
                 .response
-                .contentAsString
+                .contentAsString)
 
         then:
-        Integer.valueOf(invoiceId) > 0
+        invoiceId > 0
     }
 
     def "one invoice is returned when getting all invoices"() {
 
         given:
         def expectedInvoice = originalInvoice
-        expectedInvoice.id = invoiceId
 
         when:
         def response = mockMvc.perform(get(ENDPOINT))
@@ -96,7 +97,6 @@ class InvoiceControllerStepwiseTest extends Specification {
 
         given:
         def expectedInvoice = originalInvoice
-        expectedInvoice.id = invoiceId
 
         when:
         def response = mockMvc.perform(get("$ENDPOINT/1"))
@@ -130,7 +130,6 @@ class InvoiceControllerStepwiseTest extends Specification {
     def "updated invoice is returned correctly when getting by id"() {
         given:
         def expectedInvoice = originalInvoice
-        expectedInvoice.id = invoiceId
         expectedInvoice.date = updatedDate
 
         when:
