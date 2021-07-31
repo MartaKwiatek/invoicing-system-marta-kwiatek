@@ -128,7 +128,7 @@ class InvoiceControllerStepwiseTest extends Specification {
         expectedInvoice.id = invoiceId
 
         when:
-        def response = mockMvc.perform(get("$ENDPOINT/1"))
+        def response = mockMvc.perform(get("$ENDPOINT/$invoiceId"))
                 .andExpect(status().isOk())
                 .andReturn()
                 .response
@@ -149,7 +149,7 @@ class InvoiceControllerStepwiseTest extends Specification {
         def invoiceAsJsonString = jsonService.objectToJsonString(updatedInvoice)
 
         expect:
-        mockMvc.perform(put("$ENDPOINT/1")
+        mockMvc.perform(put("$ENDPOINT/$invoiceId")
                 .content(invoiceAsJsonString)
                 .contentType(MediaType.APPLICATION_JSON)
         )
