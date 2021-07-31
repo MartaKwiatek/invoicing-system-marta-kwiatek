@@ -35,7 +35,7 @@ class InvoiceControllerStepwiseTest extends Specification {
     private int invoiceId
 
     @Shared
-    private boolean idSetupDone = false
+    private boolean isSetupDone = false
 
     @Shared
     def originalInvoice = TestHelpers.invoice(1)
@@ -63,9 +63,9 @@ class InvoiceControllerStepwiseTest extends Specification {
     }
 
     def setup() {
-        if(!idSetupDone) {
+        if(!isSetupDone) {
             deleteAllInvoices()
-            idSetupDone = true
+            isSetupDone = true
         }
     }
 
@@ -163,7 +163,7 @@ class InvoiceControllerStepwiseTest extends Specification {
         expectedInvoice.date = updatedDate
 
         when:
-        def response = mockMvc.perform(get("$ENDPOINT/1"))
+        def response = mockMvc.perform(get("$ENDPOINT/$invoiceId"))
                 .andExpect(status().isOk())
                 .andReturn()
                 .response
