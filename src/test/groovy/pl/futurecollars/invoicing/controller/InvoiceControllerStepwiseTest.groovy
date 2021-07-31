@@ -35,12 +35,39 @@ class InvoiceControllerStepwiseTest extends Specification {
     private int invoiceId = 1
 
     @Shared
+    private boolean idSetupDone = false
+
+    @Shared
     def originalInvoice = TestHelpers.invoice(invoiceId)
 
     private updatedDate = LocalDate.of(2021, 07, 02)
     private static final ENDPOINT = "/invoices"
 
+    List<Invoice> getAllInvoices() {
+        def response = mockMvc.perform(get(ENDPOINT))
+                .andExpect(status().isOk())
+                .andReturn()
+                .response
+                .getContentAsString()
 
+        return jsonService.stringToObject(response, Invoice[])
+    }
+
+    void deleteInvoice(int id) {
+        mockMvc.perform(delete("$ENDPOINT/$id"))
+                .andExpect(status().isNoContent())
+    }
+
+    void deleteAllInvoices() {
+        getAllInvoices().each { invoice -> deleteInvoice(invoice.id) }
+    }
+
+    def setup() {
+        if(!idSetupDone) {
+            deleteAllInvoices()
+            idSetupDone = true
+        }
+    }
 
     def "empty array is returned when no invoices were created"() {
 
