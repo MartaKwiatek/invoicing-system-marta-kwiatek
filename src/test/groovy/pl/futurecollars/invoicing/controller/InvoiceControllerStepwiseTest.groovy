@@ -32,13 +32,13 @@ class InvoiceControllerStepwiseTest extends Specification {
     private JsonService jsonService
 
     @Shared
-    private int invoiceId = 1
+    private int invoiceId
 
     @Shared
     private boolean idSetupDone = false
 
     @Shared
-    def originalInvoice = TestHelpers.invoice(invoiceId)
+    def originalInvoice = TestHelpers.invoice(1)
 
     private updatedDate = LocalDate.of(2021, 07, 02)
     private static final ENDPOINT = "/invoices"
@@ -88,7 +88,7 @@ class InvoiceControllerStepwiseTest extends Specification {
         def invoiceAsJsonString = jsonService.objectToJsonString(originalInvoice)
 
         when:
-        def invoiceId = Integer.valueOf(mockMvc.perform(post(ENDPOINT)
+        invoiceId = Integer.valueOf(mockMvc.perform(post(ENDPOINT)
                 .content(invoiceAsJsonString)
                 .contentType(MediaType.APPLICATION_JSON)
         )
@@ -105,6 +105,7 @@ class InvoiceControllerStepwiseTest extends Specification {
 
         given:
         def expectedInvoice = originalInvoice
+        expectedInvoice.id = invoiceId
 
         when:
         def response = mockMvc.perform(get(ENDPOINT))
@@ -124,6 +125,7 @@ class InvoiceControllerStepwiseTest extends Specification {
 
         given:
         def expectedInvoice = originalInvoice
+        expectedInvoice.id = invoiceId
 
         when:
         def response = mockMvc.perform(get("$ENDPOINT/1"))
@@ -157,6 +159,7 @@ class InvoiceControllerStepwiseTest extends Specification {
     def "updated invoice is returned correctly when getting by id"() {
         given:
         def expectedInvoice = originalInvoice
+        expectedInvoice.id = invoiceId
         expectedInvoice.date = updatedDate
 
         when:
