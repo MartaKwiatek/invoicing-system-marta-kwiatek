@@ -2,12 +2,23 @@ package pl.futurecollars.invoicing.controller
 
 import org.springframework.http.MediaType
 import pl.futurecollars.invoicing.model.Invoice
+import spock.lang.Shared
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import static pl.futurecollars.invoicing.TestHelpers.invoice
 
 class InvoiceControllerTest extends ControllerTest {
+
+    @Shared
+    private boolean isSetupDone = false
+
+    def setup() {
+        if(!isSetupDone) {
+            deleteAllInvoices()
+            isSetupDone = true
+        }
+    }
 
     def "empty array is returned when no invoices were created"() {
         expect:
@@ -135,6 +146,6 @@ class InvoiceControllerTest extends ControllerTest {
                 .andExpect(status().isNotFound())
 
         where:
-        id << [-76, -1, 0, 559, 580]
+        id << [-76, -1, 0, 5000]
     }
 }

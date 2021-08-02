@@ -32,10 +32,42 @@ class InvoiceControllerStepwiseTest extends Specification {
     private JsonService jsonService
 
     @Shared
+    private int invoiceId
+
+    @Shared
+    private boolean isSetupDone = false
+
+    @Shared
     def originalInvoice = TestHelpers.invoice(1)
 
     private updatedDate = LocalDate.of(2021, 07, 02)
     private static final ENDPOINT = "/invoices"
+
+    List<Invoice> getAllInvoices() {
+        def response = mockMvc.perform(get(ENDPOINT))
+                .andExpect(status().isOk())
+                .andReturn()
+                .response
+                .getContentAsString()
+
+        return jsonService.stringToObject(response, Invoice[])
+    }
+
+    void deleteInvoice(int id) {
+        mockMvc.perform(delete("$ENDPOINT/$id"))
+                .andExpect(status().isNoContent())
+    }
+
+    void deleteAllInvoices() {
+        getAllInvoices().each { invoice -> deleteInvoice(invoice.id) }
+    }
+
+    def setup() {
+        if(!isSetupDone) {
+            deleteAllInvoices()
+            isSetupDone = true
+        }
+    }
 
     def "empty array is returned when no invoices were created"() {
 
@@ -44,7 +76,7 @@ class InvoiceControllerStepwiseTest extends Specification {
                 .andExpect(status().isOk())
                 .andReturn()
                 .response
-                .getContentAsString()
+                .contentAsString
 
         then:
         response == "[]"
@@ -56,51 +88,51 @@ class InvoiceControllerStepwiseTest extends Specification {
         def invoiceAsJsonString = jsonService.objectToJsonString(originalInvoice)
 
         when:
-        def invoiceId = mockMvc.perform(post(ENDPOINT)
+        invoiceId = Integer.valueOf(mockMvc.perform(post(ENDPOINT)
                 .content(invoiceAsJsonString)
                 .contentType(MediaType.APPLICATION_JSON)
         )
                 .andExpect(status().isOk())
                 .andReturn()
                 .response
-                .getContentAsString()
+                .contentAsString)
 
         then:
-        invoiceId == "1"
+        invoiceId > 0
     }
 
     def "one invoice is returned when getting all invoices"() {
 
         given:
         def expectedInvoice = originalInvoice
-        expectedInvoice.id = 1
+        expectedInvoice.id = invoiceId
 
         when:
         def response = mockMvc.perform(get(ENDPOINT))
                 .andExpect(status().isOk())
                 .andReturn()
                 .response
-                .getContentAsString()
+                .contentAsString
 
         def invoices = jsonService.stringToObject(response, Invoice[])
 
         then:
         invoices.size() == 1
-        invoices[0] == originalInvoice
+        invoices[0] == expectedInvoice
     }
 
     def "invoice is returned correctly when getting by id"() {
 
         given:
         def expectedInvoice = originalInvoice
-        expectedInvoice.id = 1
+        expectedInvoice.id = invoiceId
 
         when:
-        def response = mockMvc.perform(get("$ENDPOINT/1"))
+        def response = mockMvc.perform(get("$ENDPOINT/$invoiceId"))
                 .andExpect(status().isOk())
                 .andReturn()
                 .response
-                .getContentAsString()
+                .contentAsString
 
         def receivedInvoice = jsonService.stringToObject(response, Invoice)
 
@@ -117,7 +149,7 @@ class InvoiceControllerStepwiseTest extends Specification {
         def invoiceAsJsonString = jsonService.objectToJsonString(updatedInvoice)
 
         expect:
-        mockMvc.perform(put("$ENDPOINT/1")
+        mockMvc.perform(put("$ENDPOINT/$invoiceId")
                 .content(invoiceAsJsonString)
                 .contentType(MediaType.APPLICATION_JSON)
         )
@@ -127,15 +159,15 @@ class InvoiceControllerStepwiseTest extends Specification {
     def "updated invoice is returned correctly when getting by id"() {
         given:
         def expectedInvoice = originalInvoice
-        expectedInvoice.id = 1
+        expectedInvoice.id = invoiceId
         expectedInvoice.date = updatedDate
 
         when:
-        def response = mockMvc.perform(get("$ENDPOINT/1"))
+        def response = mockMvc.perform(get("$ENDPOINT/$invoiceId"))
                 .andExpect(status().isOk())
                 .andReturn()
                 .response
-                .getContentAsString()
+                .contentAsString
 
         def receivedInvoice = jsonService.stringToObject(response, Invoice)
 
@@ -146,14 +178,14 @@ class InvoiceControllerStepwiseTest extends Specification {
     def "invoice is successfully deleted from the database"() {
 
         expect:
-        mockMvc.perform(delete("$ENDPOINT/1"))
+        mockMvc.perform(delete("$ENDPOINT/$invoiceId"))
                 .andExpect(status().isNoContent())
 
         and:
-        mockMvc.perform(delete("$ENDPOINT/1"))
+        mockMvc.perform(delete("$ENDPOINT/$invoiceId"))
                 .andExpect(status().isNotFound())
 
-        mockMvc.perform(get("$ENDPOINT/1"))
+        mockMvc.perform(get("$ENDPOINT/$invoiceId"))
                 .andExpect(status().isNotFound())
     }
 }
