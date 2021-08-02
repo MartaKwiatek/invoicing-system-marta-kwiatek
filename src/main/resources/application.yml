@@ -6,7 +6,7 @@ spring:
     allow-bean-definition-overriding: true
 
   profiles:
-    active: sql
+    active: jpa
 
   flyway:
     enabled: false
