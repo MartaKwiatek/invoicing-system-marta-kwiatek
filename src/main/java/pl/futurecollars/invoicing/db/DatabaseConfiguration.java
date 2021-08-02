@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
 import pl.futurecollars.invoicing.db.file.FileBasedDatabase;
+import pl.futurecollars.invoicing.db.jpa.InvoiceRepository;
 import pl.futurecollars.invoicing.db.jpa.JpaDatabase;
 import pl.futurecollars.invoicing.db.memory.InMemoryDatabase;
 import pl.futurecollars.invoicing.db.sql.SqlDatabase;
@@ -59,8 +60,8 @@ public class DatabaseConfiguration {
 
     @Bean
     @ConditionalOnProperty(name = "invoicing-system.database", havingValue = "jpa")
-    public Database jpaDatabase() {
+    public Database jpaDatabase(InvoiceRepository invoiceRepository) {
         log.info("JPA database has been selected");
-        return new JpaDatabase();
+        return new JpaDatabase(invoiceRepository);
     }
 }
