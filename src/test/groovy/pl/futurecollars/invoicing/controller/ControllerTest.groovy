@@ -68,7 +68,7 @@ class ControllerTest extends Specification {
         return jsonService.stringToObject(response, Invoice[])
     }
 
-    Invoice getInvoiceById(int id) {
+    Invoice getInvoiceById(long id) {
         def response = mockMvc.perform(get("$INVOICES_ENDPOINT/$id"))
                 .andExpect(status().isOk())
                 .andReturn()
@@ -77,7 +77,7 @@ class ControllerTest extends Specification {
         return jsonService.stringToObject(response, Invoice)
     }
 
-    void deleteInvoice(int id) {
+    void deleteInvoice(long id) {
         mockMvc.perform(delete("$INVOICES_ENDPOINT/$id"))
                 .andExpect(status().isNoContent())
     }

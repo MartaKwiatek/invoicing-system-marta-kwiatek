@@ -7,20 +7,29 @@ import static pl.futurecollars.invoicing.TestHelpers.invoice
 
 abstract class AbstractDatabaseTest extends Specification {
 
-    protected Database database = getDatabaseInstance()
     protected List<Invoice> invoices = (1..12).collect { invoice(it) }
 
     abstract Database getDatabaseInstance()
+
+    Database database
+
+    def setUp() {
+        database = getDatabaseInstance()
+        database.reset()
+    }
 
     def "should save invoices returning sequential id, invoice should have id set to correct value, get by id returns saved invoice"() {
         when:
         def ids = invoices.collect({ it.id = database.save(it) })
 
         then:
-        ids == (1..invoices.size()).collect()
+        ids == (1L..invoices.size()).collect()
         ids.forEach({ assert database.getById(it).isPresent() })
         ids.forEach({ assert database.getById(it).get().getId() == it })
-        ids.forEach({ assert resetIds(database.getById(it).get()) == invoices.get(it - 1) })
+        ids.forEach({
+            def expectedInvoice = resetIds(invoices.get(it - 1 as int))
+            def invoiceFromDb = resetIds(database.getById(it).get())
+            assert invoiceFromDb.toString() ==  expectedInvoice.toString()})
     }
 
     def "get by id returns empty optional when there is no invoice with given id"() {
@@ -90,6 +99,9 @@ abstract class AbstractDatabaseTest extends Specification {
     private static resetIds(Invoice invoice) {
         invoice.getBuyer().id = 0
         invoice.getSeller().id = 0
+        invoice.entries.forEach {
+            it.id = 0
+        }
         invoice
     }
 }

@@ -8,7 +8,7 @@ import java.nio.file.Paths;
 
 public class IdService {
 
-    private static int id = 1;
+    private static long id = 1;
     private final Path idFilePath;
 
     public IdService(Path idFilePath) {
@@ -25,7 +25,7 @@ public class IdService {
         }
     }
 
-    public int getId() {
+    public long getId() {
         try {
             String actualId = Files.readString(idFilePath);
             return Integer.parseInt(actualId);

@@ -36,8 +36,8 @@ public class FileBasedDatabase implements Database {
     }
 
     @Override
-    public int save(Invoice invoice) {
-        int id = idService.getId();
+    public long save(Invoice invoice) {
+        long id = idService.getId();
         invoice.setId(id);
         idService.incrementId();
 
@@ -51,7 +51,7 @@ public class FileBasedDatabase implements Database {
     }
 
     @Override
-    public Optional<Invoice> getById(int id) {
+    public Optional<Invoice> getById(long id) {
         try {
             return Files.readAllLines(invoicesPath)
                     .stream()
@@ -76,7 +76,7 @@ public class FileBasedDatabase implements Database {
     }
 
     @Override
-    public Optional<Invoice> update(int id, Invoice updatedInvoice) {
+    public Optional<Invoice> update(long id, Invoice updatedInvoice) {
         Optional<Invoice> toUpdate = getById(id);
         updatedInvoice.setId(id);
         String updatedInvoiceAsString = jsonService.objectToJsonString(updatedInvoice).trim();
@@ -93,16 +93,16 @@ public class FileBasedDatabase implements Database {
         }
     }
 
-    private boolean findById(String line, int id) {
+    private boolean findById(String line, long id) {
         return line.contains("\"id\":" + id + ",\"date\"");
     }
 
-    private String updatedInvoice(String oldInvoiceAsString, int id, String updatedInvoiceAsString) {
+    private String updatedInvoice(String oldInvoiceAsString, long id, String updatedInvoiceAsString) {
         return findById(oldInvoiceAsString, id) ? updatedInvoiceAsString : oldInvoiceAsString;
     }
 
     @Override
-    public Optional<Invoice> delete(int id) {
+    public Optional<Invoice> delete(long id) {
         Optional<Invoice> toDelete = getById(id);
         try {
             String reducedInvoices = Files.readAllLines(invoicesPath)
