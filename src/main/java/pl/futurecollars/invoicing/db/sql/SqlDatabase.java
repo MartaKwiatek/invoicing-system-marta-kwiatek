@@ -2,11 +2,8 @@ package pl.futurecollars.invoicing.db.sql;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import javax.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -34,20 +31,6 @@ public class SqlDatabase implements Database {
             + "from invoice i "
             + "inner join company c1 on i.seller = c1.id "
             + "inner join company c2 on i.buyer = c2.id";
-
-//    private final Map<Vat, Long> vatToId = new HashMap<>();
-//    private final Map<Long, Vat> idToVat = new HashMap<>();
-//
-//    @PostConstruct
-//    void initVatRatesMap() {
-//        jdbcTemplate.query("select * from vat", rs -> {
-//            Vat vat = Vat.valueOf("VAT_" + rs.getString("name"));
-//            long id = rs.getInt("id");
-//
-//            vatToId.put(vat, id);
-//            idToVat.put(id, vat);
-//        });
-//    }
 
     private Integer insertCarAndGetItId(Car car) {
         if (car == null) {
