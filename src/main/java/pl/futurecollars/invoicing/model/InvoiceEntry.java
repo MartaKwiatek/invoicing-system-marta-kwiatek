@@ -5,6 +5,8 @@ import io.swagger.annotations.ApiModelProperty;
 import java.math.BigDecimal;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.Enumerated;
+import javax.persistence.EnumType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -39,6 +41,7 @@ public class InvoiceEntry {
     @ApiModelProperty(value = "Tax Value", required = true, example = "230")
     private BigDecimal vatValue = BigDecimal.ZERO;
 
+    @Enumerated(EnumType.STRING)
     @ApiModelProperty(value = "Tax rate", required = true, example = "VAT_23")
     private Vat vatRate;
 
