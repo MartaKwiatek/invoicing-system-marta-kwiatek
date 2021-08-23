@@ -2,8 +2,9 @@ package pl.futurecollars.invoicing.db.jpa;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.util.Streamable;
 import pl.futurecollars.invoicing.db.Database;
 import pl.futurecollars.invoicing.model.Invoice;
 
@@ -24,7 +25,9 @@ public class JpaDatabase implements Database {
 
     @Override
     public List<Invoice> getAll() {
-        return Streamable.of(invoiceRepository.findAll()).toList();
+        return StreamSupport
+                .stream(invoiceRepository.findAll().spliterator(), false)
+                .collect(Collectors.toList());
     }
 
     @Override

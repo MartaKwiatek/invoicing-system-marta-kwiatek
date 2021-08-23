@@ -10,14 +10,8 @@ import static pl.futurecollars.invoicing.TestHelpers.invoice
 
 class InvoiceControllerTest extends ControllerTest {
 
-    @Shared
-    private boolean isSetupDone = false
-
     def setup() {
-        if(!isSetupDone) {
-            deleteAllInvoices()
-            isSetupDone = true
-        }
+        deleteAllInvoices()
     }
 
     def "empty array is returned when no invoices were created"() {

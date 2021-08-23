@@ -29,7 +29,6 @@ class TestHelpers {
 
     static invoice(long id) {
         Invoice.builder()
-        .id(id)
         .date(LocalDate.now())
         .number("9999/99/99/9999999/$id")
         .buyer(company(id + 10))
