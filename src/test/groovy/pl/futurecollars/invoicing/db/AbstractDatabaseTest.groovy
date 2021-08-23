@@ -106,10 +106,10 @@ abstract class AbstractDatabaseTest extends Specification {
     }
 
     private static resetIds(Invoice invoice) {
-        invoice.getBuyer().id = 0
-        invoice.getSeller().id = 0
+        invoice.getBuyer().id = null
+        invoice.getSeller().id = null
         invoice.entries.forEach {
-            it.id = 0
+            it.id = null
         }
         invoice
     }
