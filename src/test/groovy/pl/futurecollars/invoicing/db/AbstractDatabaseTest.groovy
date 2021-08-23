@@ -55,14 +55,15 @@ abstract class AbstractDatabaseTest extends Specification {
         }
 
         when:
-        database.delete(1)
+        def firstInvoiceId = database.getAll().get(0).getId()
+        database.delete(firstInvoiceId)
 
         then:
         database.getAll().size() == invoices.size() - 1
         database.getAll().eachWithIndex { invoice, index ->
             assert resetIds(invoice).toString() == resetIds(invoices.get(index + 1)).toString()
         }
-        database.getAll().forEach({ assert it.getId() != 1 })
+        database.getAll().forEach({ assert it.getId() != firstInvoiceId })
     }
 
     def "can delete all invoices"() {
