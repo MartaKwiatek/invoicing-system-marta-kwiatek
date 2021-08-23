@@ -13,7 +13,7 @@ abstract class AbstractDatabaseTest extends Specification {
 
     Database database
 
-    def setUp() {
+    def setup() {
         database = getDatabaseInstance()
         database.reset()
     }
@@ -27,7 +27,7 @@ abstract class AbstractDatabaseTest extends Specification {
         ids.forEach({ assert database.getById(it).isPresent() })
         ids.forEach({ assert database.getById(it).get().getId() == it })
         ids.forEach({
-            def expectedInvoice = resetIds(invoices.get(it - 1 as int))
+            def expectedInvoice = resetIds(invoices.get((int) it - 1))
             def invoiceFromDb = resetIds(database.getById(it).get())
             assert invoiceFromDb.toString() ==  expectedInvoice.toString()})
     }
@@ -48,14 +48,20 @@ abstract class AbstractDatabaseTest extends Specification {
 
         expect:
         database.getAll().size() == invoices.size()
-        database.getAll().forEach({ assert resetIds(it) == invoices.get(it.getId() - 1) })
+        database.getAll().eachWithIndex{ invoice, index ->
+            def invoiceAsString = resetIds(invoice).toString()
+            def expectedInvoiceAsString = resetIds(invoices.get(index)).toString()
+            assert invoiceAsString == expectedInvoiceAsString
+        }
 
         when:
         database.delete(1)
 
         then:
         database.getAll().size() == invoices.size() - 1
-        database.getAll().forEach({ assert resetIds(it) == invoices.get(it.getId() - 1) })
+        database.getAll().eachWithIndex { invoice, index ->
+            assert resetIds(invoice).toString() == resetIds(invoices.get(index + 1)).toString()
+        }
         database.getAll().forEach({ assert it.getId() != 1 })
     }
 
@@ -87,8 +93,8 @@ abstract class AbstractDatabaseTest extends Specification {
         def result = database.update(oldInvoice.id, newInvoice)
 
         then:
-        resetIds(database.getById(oldInvoice.id).get()) == newInvoice
-        resetIds(result.get()) == oldInvoice
+        resetIds(database.getById(oldInvoice.id).get()).toString() == resetIds(newInvoice).toString()
+        resetIds(result.get()).toString() == resetIds(oldInvoice).toString()
     }
 
     def "updating not existing invoice returns Optional.empty()"() {
