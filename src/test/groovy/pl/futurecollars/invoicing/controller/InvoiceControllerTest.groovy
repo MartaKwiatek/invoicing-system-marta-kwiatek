@@ -29,7 +29,7 @@ class InvoiceControllerTest extends ControllerTest {
 
         then:
         howManyInvoices == invoices.size()
-        invoicesToAdd == invoices
+        invoicesToAdd == invoices.sort{it.id}
     }
 
     def "returns correct ids when invoices added"() {
