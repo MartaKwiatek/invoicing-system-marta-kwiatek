@@ -1,13 +1,16 @@
 package pl.futurecollars.invoicing.controller
 
+import com.mongodb.client.MongoDatabase
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.ApplicationContext
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import pl.futurecollars.invoicing.TestHelpers
 import pl.futurecollars.invoicing.model.Invoice
 import pl.futurecollars.invoicing.service.JsonService
+import spock.lang.Requires
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Stepwise
@@ -42,6 +45,16 @@ class InvoiceControllerStepwiseTest extends Specification {
 
     private updatedDate = LocalDate.of(2021, 07, 02)
     private static final ENDPOINT = "/invoices"
+
+    @Autowired
+    private ApplicationContext context
+
+    @Requires({ System.getProperty('spring.profiles.active', 'memory').contains("mongo")})
+    def "database is dropped to ensure clean state"() {
+        expect:
+        MongoDatabase mongoDatabase = context.getBean(MongoDatabase)
+        mongoDatabase.drop()
+    }
 
     List<Invoice> getAllInvoices() {
         def response = mockMvc.perform(get(ENDPOINT))
