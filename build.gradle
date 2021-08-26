@@ -126,11 +126,16 @@ task testWithPostgreSqlDatabase(type: Test) {
     systemProperty 'spring.profiles.active', 'sql-pg'
 }
 
+task testWithMongoDatabase(type: Test) {
+    systemProperty 'spring.profiles.active', 'mongo'
+}
+
 check.dependsOn testWithFileDatabase
 check.dependsOn testWithMemoryDatabase
 check.dependsOn testWithSQLDatabase
 check.dependsOn testWithJpaDatabase
 check.dependsOn testWithJpaFlywayDatabase
+check.dependsOn testWithMongoDatabase
 
 String osName = System.getProperty("os.name").toLowerCase()
 if (osName.contains("mac")) {

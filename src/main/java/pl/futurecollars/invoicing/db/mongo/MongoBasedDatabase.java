@@ -3,7 +3,6 @@ package pl.futurecollars.invoicing.db.mongo;
 import com.mongodb.client.MongoCollection;
 import java.util.List;
 import java.util.Optional;
-
 import lombok.AllArgsConstructor;
 import org.bson.Document;
 import org.springframework.data.util.Streamable;

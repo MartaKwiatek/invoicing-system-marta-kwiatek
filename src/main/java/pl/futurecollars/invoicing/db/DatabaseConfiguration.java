@@ -1,14 +1,16 @@
 package pl.futurecollars.invoicing.db;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
+import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.codecs.configuration.CodecRegistry;
@@ -28,9 +30,6 @@ import pl.futurecollars.invoicing.db.sql.SqlDatabase;
 import pl.futurecollars.invoicing.model.Invoice;
 import pl.futurecollars.invoicing.service.IdService;
 import pl.futurecollars.invoicing.service.JsonService;
-
-import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
-import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
 @Slf4j
 @Configuration
