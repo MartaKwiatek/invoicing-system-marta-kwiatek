@@ -7,6 +7,7 @@ buildscript {
         springFoxStarterVersion = '3.0.0'
         springFoxUiVersion = '2.9.2'
         flywayVersion = '7.11.3'
+        mongoVersion = '3.12.8'
     }
 }
 
@@ -29,6 +30,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation "org.springframework.boot:spring-boot-starter-jdbc"
     implementation "org.springframework.boot:spring-boot-starter-data-jpa"
+    implementation "org.mongodb:mongo-java-driver:${mongoVersion}"
     implementation "io.springfox:springfox-boot-starter:${springFoxStarterVersion}"
     implementation "io.springfox:springfox-swagger-ui:${springFoxUiVersion}"
 
