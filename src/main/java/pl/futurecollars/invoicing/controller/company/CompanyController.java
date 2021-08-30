@@ -1,4 +1,4 @@
-package pl.futurecollars.invoicing.controller.invoice;
+package pl.futurecollars.invoicing.controller.company;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -6,42 +6,42 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import pl.futurecollars.invoicing.model.Invoice;
-import pl.futurecollars.invoicing.service.InvoiceService;
+import pl.futurecollars.invoicing.model.Company;
+import pl.futurecollars.invoicing.service.CompanyService;
 
 @AllArgsConstructor
 @RestController
-public class InvoiceController implements InvoiceApi {
+public class CompanyController implements CompanyApi{
 
-    private final InvoiceService invoiceService;
+    private final CompanyService companyService;
 
     @Override
-    public List<Invoice> getAllInvoices() {
-        return invoiceService.getAll();
+    public List<Company> getAllCompanies() {
+        return companyService.getAll();
     }
 
     @Override
-    public long addInvoice(@RequestBody Invoice invoiceRq) {
-        return invoiceService.save(invoiceRq);
+    public long addCompany(@RequestBody Company companyRq) {
+        return companyService.save(companyRq);
     }
 
     @Override
-    public ResponseEntity<Invoice> getSingleInvoiceById(@PathVariable int id) {
-        return invoiceService.getById(id)
+    public ResponseEntity<Company> getSingleCompanyById(@PathVariable int id) {
+        return companyService.getById(id)
                 .map(invoice -> ResponseEntity.ok().body(invoice))
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @Override
     public ResponseEntity<?> deleteById(@PathVariable int id) {
-        return invoiceService.delete(id)
+        return companyService.delete(id)
                 .map(invoice -> ResponseEntity.noContent().build())
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @Override
-    public ResponseEntity<?> update(@PathVariable int id, @RequestBody Invoice updatedInvoice) {
-        return invoiceService.update(id, updatedInvoice)
+    public ResponseEntity<?> update(@PathVariable int id, @RequestBody Company updatedCompany) {
+        return companyService.update(id, updatedCompany)
                 .map(invoice -> ResponseEntity.noContent().build())
                 .orElse(ResponseEntity.notFound().build());
     }
