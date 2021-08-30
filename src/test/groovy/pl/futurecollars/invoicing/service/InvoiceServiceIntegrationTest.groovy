@@ -24,10 +24,10 @@ class InvoiceServiceIntegrationTest extends Specification{
         def ids = invoices.collect({service.save(it)})
 
         then:
-        ids == (1..invoices.size()).collect()
+        ids == (1L..invoices.size()).collect()
         ids.forEach({assert service.getById(it).isPresent()})
         ids.forEach({assert service.getById(it).get().getId() == it})
-        ids.forEach({assert service.getById(it).get() == invoices.get(it - 1)})
+        ids.forEach({assert service.getById(it).get() == invoices.get(it - 1 as int)})
     }
 
     def "get by id returns empty optional when there is no invoice with given id"() {
@@ -46,14 +46,14 @@ class InvoiceServiceIntegrationTest extends Specification{
 
         expect:
         service.getAll().size() == invoices.size()
-        service.getAll().forEach({assert it == invoices.get(it.getId() - 1)})
+        service.getAll().forEach({assert it == invoices.get(it.getId() - 1 as int)})
 
         when:
         service.delete(1)
 
         then:
         service.getAll().size() == invoices.size() - 1
-        service.getAll().forEach({assert it == invoices.get(it.getId() - 1)})
+        service.getAll().forEach({assert it == invoices.get(it.getId() - 1 as int)})
         service.getAll().forEach({ assert it.getId() != 1 })
     }
 
@@ -75,7 +75,7 @@ class InvoiceServiceIntegrationTest extends Specification{
 
     def "it's possible to update the invoice"() {
         given:
-        int id = service.save(invoices.get(0))
+        long id = service.save(invoices.get(0))
 
         when:
         service.update(id, invoices.get(1))

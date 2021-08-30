@@ -10,14 +10,8 @@ import static pl.futurecollars.invoicing.TestHelpers.invoice
 
 class InvoiceControllerTest extends ControllerTest {
 
-    @Shared
-    private boolean isSetupDone = false
-
     def setup() {
-        if(!isSetupDone) {
-            deleteAllInvoices()
-            isSetupDone = true
-        }
+        deleteAllInvoices()
     }
 
     def "empty array is returned when no invoices were created"() {
@@ -25,26 +19,17 @@ class InvoiceControllerTest extends ControllerTest {
         getAllInvoices() == []
     }
 
-    def "one invoice is successfully added to the database"() {
-        given:
-        Invoice invoiceToAdd = invoice(8)
-
-        when:
-        def id = addOneInvoice(invoiceToAdd)
-        invoiceToAdd.id = id
-
-        then:
-        getAllInvoices().size() > 0
-        getAllInvoices().get(0) == invoiceToAdd
-    }
-
     def "more than one invoice is successfully added to the database"() {
+        given:
+        def howManyInvoices = 10
+        List<Invoice> invoicesToAdd = addInvoices(howManyInvoices)
+
         when:
-        List<Invoice> invoicesToAdd = addInvoices(10)
+        def invoices = getAllInvoices()
 
         then:
-        invoicesToAdd.size() == getAllInvoices().size()
-//        invoicesToAdd == getAllInvoices()
+        howManyInvoices == invoices.size()
+        invoicesToAdd == invoices.sort{it.id}
     }
 
     def "returns correct ids when invoices added"() {
@@ -78,20 +63,7 @@ class InvoiceControllerTest extends ControllerTest {
                 .andExpect(status().isNotFound())
 
         where:
-        id << [-76, -1, 0, 57, 79]
-    }
-
-    def "one invoice is successfully deleted from the database"() {
-        given:
-        List<Invoice> invoicesToAdd = addInvoices(200)
-        Invoice invoiceTODelete = invoicesToAdd.get(0)
-        getAllInvoices().size() == 200
-
-        when:
-        deleteInvoice(invoiceTODelete.getId())
-
-        then:
-        getAllInvoices().size() == 199
+        id << [-76, -1, 0]
     }
 
     def "all invoices are successfully deleted from the database"() {
@@ -115,7 +87,7 @@ class InvoiceControllerTest extends ControllerTest {
                 .andExpect(status().isNotFound())
 
         where:
-        id << [-76, -1, 0, 507, 529]
+        id << [-76, -1, 0]
     }
 
     def "invoice is successfully updated"() {
