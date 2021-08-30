@@ -17,7 +17,7 @@ class FileBasedAbstractDatabaseTest extends AbstractDatabaseTest {
         def idPath = File.createTempFile('ids', '.txt').toPath()
         dbPath = File.createTempFile('invoices', '.txt').toPath()
 
-        return new FileBasedDatabase(dbPath, new IdService(idPath), new JsonService())
+        return new FileBasedDatabase(dbPath, new IdService(idPath), new JsonService(), clazz)
     }
 
     def "FileBasedDatabase save invoices in correct file"() {

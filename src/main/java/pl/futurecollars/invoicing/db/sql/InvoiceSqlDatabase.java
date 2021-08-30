@@ -4,7 +4,6 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -16,10 +15,11 @@ import pl.futurecollars.invoicing.model.Invoice;
 import pl.futurecollars.invoicing.model.InvoiceEntry;
 import pl.futurecollars.invoicing.model.Vat;
 
-@AllArgsConstructor
-public class SqlDatabase implements Database {
+public class InvoiceSqlDatabase extends AbstractSqlDatabase implements Database<Invoice> {
 
-    private final JdbcTemplate jdbcTemplate;
+    public InvoiceSqlDatabase(JdbcTemplate jdbcTemplate) {
+        super(jdbcTemplate);
+    }
 
     private final String selectQuery = "select i.id, i.date, i.number, "
             + "c1.name as seller_name, c1.tax_identification_number as seller_tax_id, c1.address as seller_address, "
@@ -31,6 +31,33 @@ public class SqlDatabase implements Database {
             + "from invoice i "
             + "inner join company c1 on i.seller = c1.id "
             + "inner join company c2 on i.buyer = c2.id";
+
+    @Override
+    @Transactional
+    public long save(Invoice invoice) {
+        int buyerId = insertCompany(invoice.getBuyer());
+        int sellerId = insertCompany(invoice.getSeller());
+        int invoiceId = insertInvoice(invoice, buyerId, sellerId);
+        addEntriesToInvoice(invoiceId, invoice);
+
+        return invoiceId;
+    }
+
+    private int insertInvoice(Invoice invoice, int buyerId, int sellerId) {
+        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement("insert into invoice (date, number, buyer, seller) values (?, ?, ?, ?);",
+                    new String[]{"id"});
+            ps.setDate(1, Date.valueOf(invoice.getDate()));
+            ps.setString(2, invoice.getNumber());
+            ps.setLong(3, buyerId);
+            ps.setLong(4, sellerId);
+            return ps;
+        }, keyHolder);
+
+        return keyHolder.getKey().intValue();
+    }
 
     private Integer insertCarAndGetItId(Car car) {
         if (car == null) {
@@ -50,65 +77,15 @@ public class SqlDatabase implements Database {
         return keyHolder.getKey().intValue();
     }
 
-    private int insertCompany(Company company) {
-        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
-
-        jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement("insert into company "
-                    + "(tax_identification_number, address, name, health_insurance, pension_insurance) "
-                    + "values (?, ?, ?, ?, ?);", new String[]{"id"});
-            ps.setString(1, company.getTaxIdNumber());
-            ps.setString(2, company.getAddress());
-            ps.setString(3, company.getName());
-            ps.setBigDecimal(4, company.getHealthInsurance());
-            ps.setBigDecimal(5, company.getPensionInsurance());
-            return ps;
-        }, keyHolder);
-
-        return keyHolder.getKey().intValue();
+    @Override
+    public List<Invoice> getAll() {
+        return jdbcTemplate.query(selectQuery, invoiceRowMapper());
     }
 
-    private int insertInvoice(Invoice invoice, int buyerId, int sellerId) {
-        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
-
-        jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement("insert into invoice (date, number, buyer, seller) values (?, ?, ?, ?);",
-                    new String[]{"id"});
-            ps.setDate(1, Date.valueOf(invoice.getDate()));
-            ps.setString(2, invoice.getNumber());
-            ps.setLong(3, buyerId);
-            ps.setLong(4, sellerId);
-            return ps;
-        }, keyHolder);
-
-        return keyHolder.getKey().intValue();
-    }
-
-    private void addEntriesToInvoice(long invoiceId, Invoice invoice) {
-        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
-
-        invoice.getEntries().forEach(entry -> {
-            jdbcTemplate.update(connection -> {
-                PreparedStatement ps = connection.prepareStatement(
-                        "insert into invoice_entry (description, price, vat_value, vat_rate, car_expense) values (?, ?, ?, ?, ?);",
-                        new String[]{"id"});
-                ps.setString(1, entry.getDescription());
-                ps.setBigDecimal(2, entry.getPrice());
-                ps.setBigDecimal(3, entry.getVatValue());
-                ps.setString(4, entry.getVatRate().name());
-                ps.setObject(5, insertCarAndGetItId(entry.getCarExpense()));
-                return ps;
-            }, keyHolder);
-            int invoiceEntryId = keyHolder.getKey().intValue();
-
-            jdbcTemplate.update(connection -> {
-                PreparedStatement ps = connection.prepareStatement(
-                        "insert into invoice_invoice_entry (invoice_id, invoice_entry_id) values (?, ?);");
-                ps.setLong(1, invoiceId);
-                ps.setLong(2, invoiceEntryId);
-                return ps;
-            });
-        });
+    @Override
+    public Optional<Invoice> getById(long id) {
+        List<Invoice> invoices = jdbcTemplate.query(selectQuery + " where i.id = " + id, invoiceRowMapper());
+        return invoices.isEmpty() ? Optional.empty() : Optional.of(invoices.get(0));
     }
 
     private RowMapper<Invoice> invoiceRowMapper() {
@@ -158,20 +135,96 @@ public class SqlDatabase implements Database {
         };
     }
 
-    private void updateCompany(Company updated, Company toUpdate) {
+    @Override
+    @Transactional
+    public Optional<Invoice> update(long id, Invoice updatedInvoice) {
+        Optional<Invoice> oldInvoice = getById(id);
+
+        if (oldInvoice.isEmpty()) {
+            return oldInvoice;
+        }
+
+        updatedInvoice.getBuyer().setId(oldInvoice.get().getBuyer().getId());
+        updateCompany(updatedInvoice.getBuyer());
+
+        updatedInvoice.getSeller().setId(oldInvoice.get().getSeller().getId());
+        updateCompany(updatedInvoice.getSeller());
+
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement("update company "
-                    + "set tax_identification_number = ?, address = ?, name = ?, health_insurance = ?, pension_insurance = ? "
+            PreparedStatement ps = connection.prepareStatement("update invoice "
+                    + "set date = ?, number = ? "
                     + "where id = ?");
 
-            ps.setString(1, updated.getTaxIdNumber());
-            ps.setString(2, updated.getAddress());
-            ps.setString(3, updated.getName());
-            ps.setBigDecimal(4, updated.getHealthInsurance());
-            ps.setBigDecimal(5, updated.getPensionInsurance());
-            ps.setLong(6, toUpdate.getId());
+            ps.setDate(1, Date.valueOf(updatedInvoice.getDate()));
+            ps.setString(2, updatedInvoice.getNumber());
+            ps.setLong(3, id);
             return ps;
         });
+
+        deleteCars(id);
+        deleteEntries(id);
+        addEntriesToInvoice(id, updatedInvoice);
+
+        return oldInvoice;
+    }
+
+    private void addEntriesToInvoice(long invoiceId, Invoice invoice) {
+        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+
+        invoice.getEntries().forEach(entry -> {
+            jdbcTemplate.update(connection -> {
+                PreparedStatement ps = connection.prepareStatement(
+                        "insert into invoice_entry (description, price, vat_value, vat_rate, car_expense) values (?, ?, ?, ?, ?);",
+                        new String[]{"id"});
+                ps.setString(1, entry.getDescription());
+                ps.setBigDecimal(2, entry.getPrice());
+                ps.setBigDecimal(3, entry.getVatValue());
+                ps.setString(4, entry.getVatRate().name());
+                ps.setObject(5, insertCarAndGetItId(entry.getCarExpense()));
+                return ps;
+            }, keyHolder);
+            int invoiceEntryId = keyHolder.getKey().intValue();
+
+            jdbcTemplate.update(connection -> {
+                PreparedStatement ps = connection.prepareStatement(
+                        "insert into invoice_invoice_entry (invoice_id, invoice_entry_id) values (?, ?);");
+                ps.setLong(1, invoiceId);
+                ps.setLong(2, invoiceEntryId);
+                return ps;
+            });
+        });
+    }
+
+    @Override
+    @Transactional
+    public Optional<Invoice> delete(long id) {
+        Optional<Invoice> oldInvoice = getById(id);
+
+        if (oldInvoice.isEmpty()) {
+            return oldInvoice;
+        }
+
+        final Invoice invoice = oldInvoice.get();
+
+        deleteCars(id);
+        deleteEntries(id);
+
+        jdbcTemplate.update(con -> {
+            PreparedStatement ps = con.prepareStatement(
+                    "delete from invoice where id = ?;");
+            ps.setLong(1, id);
+            return ps;
+        });
+
+        jdbcTemplate.update(con -> {
+            PreparedStatement ps = con.prepareStatement(
+                    "delete from company where id in (?, ?)");
+            ps.setLong(1, invoice.getBuyer().getId());
+            ps.setLong(2, invoice.getSeller().getId());
+            return ps;
+        });
+
+        return oldInvoice;
     }
 
     private void deleteCars(long invoiceId) {
@@ -193,86 +246,8 @@ public class SqlDatabase implements Database {
         });
     }
 
-    @Override
-    @Transactional
-    public long save(Invoice invoice) {
-        int buyerId = insertCompany(invoice.getBuyer());
-        int sellerId = insertCompany(invoice.getSeller());
-        int invoiceId = insertInvoice(invoice, buyerId, sellerId);
-        addEntriesToInvoice(invoiceId, invoice);
 
-        return invoiceId;
-    }
 
-    @Override
-    public Optional<Invoice> getById(long id) {
-        List<Invoice> invoices = jdbcTemplate.query(selectQuery + " where i.id = " + id, invoiceRowMapper());
-        return invoices.isEmpty() ? Optional.empty() : Optional.of(invoices.get(0));
-    }
 
-    @Override
-    public List<Invoice> getAll() {
-        return jdbcTemplate.query(selectQuery, invoiceRowMapper());
-    }
 
-    @Override
-    @Transactional
-    public Optional<Invoice> update(long id, Invoice updatedInvoice) {
-        Optional<Invoice> optionalInvoice = getById(id);
-
-        if (optionalInvoice.isEmpty()) {
-            return optionalInvoice;
-        }
-
-        updateCompany(updatedInvoice.getBuyer(), optionalInvoice.get().getBuyer());
-        updateCompany(updatedInvoice.getSeller(), optionalInvoice.get().getSeller());
-
-        jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement("update invoice "
-                    + "set date = ?, number = ? "
-                    + "where id = ?");
-
-            ps.setDate(1, Date.valueOf(updatedInvoice.getDate()));
-            ps.setString(2, updatedInvoice.getNumber());
-            ps.setLong(3, id);
-            return ps;
-        });
-
-        deleteCars(id);
-        deleteEntries(id);
-        addEntriesToInvoice(id, updatedInvoice);
-
-        return optionalInvoice;
-    }
-
-    @Override
-    public Optional<Invoice> delete(long id) {
-        Optional<Invoice> optionalInvoice = getById(id);
-
-        if (optionalInvoice.isEmpty()) {
-            return optionalInvoice;
-        }
-
-        final Invoice invoice = optionalInvoice.get();
-
-        deleteCars(id);
-        deleteEntries(id);
-
-        jdbcTemplate.update(con -> {
-            PreparedStatement ps = con.prepareStatement(
-                    "delete from invoice where id = ?;");
-            ps.setLong(1, id);
-            return ps;
-        });
-
-        jdbcTemplate.update(con -> {
-            PreparedStatement ps = con.prepareStatement(
-                    "delete from company where id in (?, ?)");
-            ps.setLong(1, invoice.getBuyer().getId());
-            ps.setLong(2, invoice.getSeller().getId());
-            return ps;
-        });
-
-        return optionalInvoice;
-    }
 }
