@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 import lombok.extern.java.Log;
 import pl.futurecollars.invoicing.db.Database;
 import pl.futurecollars.invoicing.db.WithId;
-import pl.futurecollars.invoicing.model.Invoice;
 import pl.futurecollars.invoicing.service.IdService;
 import pl.futurecollars.invoicing.service.JsonService;
 

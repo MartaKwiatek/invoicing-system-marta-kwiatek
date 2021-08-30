@@ -1,11 +1,10 @@
 package pl.futurecollars.invoicing.db.sql;
 
+import java.sql.PreparedStatement;
 import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import pl.futurecollars.invoicing.model.Company;
-
-import java.sql.PreparedStatement;
 
 @AllArgsConstructor
 public class AbstractSqlDatabase {

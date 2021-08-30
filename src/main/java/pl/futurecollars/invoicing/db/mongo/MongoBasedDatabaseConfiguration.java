@@ -1,5 +1,8 @@
 package pl.futurecollars.invoicing.db.mongo;
 
+import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
+import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
+
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
@@ -15,9 +18,6 @@ import org.springframework.context.annotation.Configuration;
 import pl.futurecollars.invoicing.db.Database;
 import pl.futurecollars.invoicing.model.Company;
 import pl.futurecollars.invoicing.model.Invoice;
-
-import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
-import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
 @Configuration
 @ConditionalOnProperty(name = "invoicing-system.database", havingValue = "mongo")

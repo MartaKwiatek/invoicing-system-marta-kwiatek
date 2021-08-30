@@ -17,10 +17,6 @@ import pl.futurecollars.invoicing.model.Vat;
 
 public class InvoiceSqlDatabase extends AbstractSqlDatabase implements Database<Invoice> {
 
-    public InvoiceSqlDatabase(JdbcTemplate jdbcTemplate) {
-        super(jdbcTemplate);
-    }
-
     private final String selectQuery = "select i.id, i.date, i.number, "
             + "c1.name as seller_name, c1.tax_identification_number as seller_tax_id, c1.address as seller_address, "
             + "c1.health_insurance as seller_health_insurance, c1.pension_insurance as seller_pension_insurance, "
@@ -31,6 +27,10 @@ public class InvoiceSqlDatabase extends AbstractSqlDatabase implements Database<
             + "from invoice i "
             + "inner join company c1 on i.seller = c1.id "
             + "inner join company c2 on i.buyer = c2.id";
+
+    public InvoiceSqlDatabase(JdbcTemplate jdbcTemplate) {
+        super(jdbcTemplate);
+    }
 
     @Override
     @Transactional
@@ -245,9 +245,4 @@ public class InvoiceSqlDatabase extends AbstractSqlDatabase implements Database<
             return ps;
         });
     }
-
-
-
-
-
 }

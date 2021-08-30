@@ -11,7 +11,7 @@ import pl.futurecollars.invoicing.service.CompanyService;
 
 @AllArgsConstructor
 @RestController
-public class CompanyController implements CompanyApi{
+public class CompanyController implements CompanyApi {
 
     private final CompanyService companyService;
 

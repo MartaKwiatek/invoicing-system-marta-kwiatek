@@ -8,7 +8,6 @@ import org.bson.Document;
 import org.springframework.data.util.Streamable;
 import pl.futurecollars.invoicing.db.Database;
 import pl.futurecollars.invoicing.db.WithId;
-import pl.futurecollars.invoicing.model.Invoice;
 
 @AllArgsConstructor
 public class MongoBasedDatabase<T extends WithId> implements Database<T> {
