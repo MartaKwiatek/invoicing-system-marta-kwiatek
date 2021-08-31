@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import pl.futurecollars.invoicing.db.Database;
 import pl.futurecollars.invoicing.model.Company;
 import pl.futurecollars.invoicing.model.Invoice;
+import pl.futurecollars.invoicing.service.FilesService;
 import pl.futurecollars.invoicing.service.IdService;
 import pl.futurecollars.invoicing.service.JsonService;
 
@@ -19,32 +20,35 @@ public class FileDatabaseConfiguration {
 
     @Bean
     public IdService idService(
+            FilesService filesService,
             @Value("${invoicing-system.database.directory}") String databaseDirectory,
             @Value("${invoicing-system.database.id.file}") String idFile
     ) throws IOException {
         Path idFilePath = Files.createTempFile(databaseDirectory, idFile);
-        return new IdService(idFilePath);
+        return new IdService(idFilePath, filesService);
     }
 
     @Bean
     public Database<Invoice> invoiceFileBasedDatabase(
             IdService idService,
+            FilesService filesService,
             JsonService jsonService,
             @Value("${invoicing-system.database.directory}") String databaseDirectory,
             @Value("${invoicing-system.database.invoices.file}") String invoicesFile
     ) throws IOException {
         Path databaseFilePath = Files.createTempFile(databaseDirectory, invoicesFile);
-        return new FileBasedDatabase<>(databaseFilePath, idService, jsonService, Invoice.class);
+        return new FileBasedDatabase<>(databaseFilePath, idService, filesService, jsonService, Invoice.class);
     }
 
     @Bean
     public Database<Company> companyFileBasedDatabase(
             IdService idService,
+            FilesService filesService,
             JsonService jsonService,
             @Value("${invoicing-system.database.directory}") String databaseDirectory,
             @Value("${invoicing-system.database.companies.file}") String companiesFile
     ) throws IOException {
         Path databaseFilePath = Files.createTempFile(databaseDirectory, companiesFile);
-        return new FileBasedDatabase<>(databaseFilePath, idService, jsonService, Company.class);
+        return new FileBasedDatabase<>(databaseFilePath, idService, filesService, jsonService, Company.class);
     }
 }

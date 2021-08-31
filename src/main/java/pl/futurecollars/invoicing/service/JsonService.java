@@ -19,7 +19,7 @@ public class JsonService {
 
     public String objectToJsonString(Object object) {
         try {
-            return objectMapper.writeValueAsString(object) + "\n";
+            return objectMapper.writeValueAsString(object);
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Serialization from object to json string failed", e);
         }
