@@ -6,7 +6,7 @@ spring:
     allow-bean-definition-overriding: true
 
   profiles:
-    active: file
+    active: mongo
 
   flyway:
     enabled: false

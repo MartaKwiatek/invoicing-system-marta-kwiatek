@@ -90,16 +90,16 @@ class InvoiceServiceUnitTest extends Specification{
         RuntimeException exception = thrown()
     }
 
-    def "exception test when trying to updating"() {
-        setup:
-        database.update(1, invoice(3)) >> {throw new RuntimeException("Updating invoice failed")}
-
-        when:
-        service.update(1, invoice(3))
-
-        then:
-        RuntimeException exception = thrown()
-    }
+//    def "exception test when trying to updating"() {
+//        setup:
+//        database.update(1, invoice(3)) >> {throw new RuntimeException("Updating invoice failed")}
+//
+//        when:
+//        service.update(1, invoice(3))
+//
+//        then:
+//        RuntimeException exception = thrown()
+//    }
 
     def "exception test when trying to delete"() {
         setup:

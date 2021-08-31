@@ -54,7 +54,7 @@ class AbstractControllerTest extends Specification {
                 .andExpect(status().isOk())
                 .andReturn()
                 .response
-                .getContentAsString()
+                .contentAsString
 
         return id as int
     }
@@ -88,7 +88,7 @@ class AbstractControllerTest extends Specification {
                 .andExpect(status().isOk())
                 .andReturn()
                 .response
-                .getContentAsString()
+                .contentAsString
 
         return jsonService.stringToObject(response, clazz)
     }

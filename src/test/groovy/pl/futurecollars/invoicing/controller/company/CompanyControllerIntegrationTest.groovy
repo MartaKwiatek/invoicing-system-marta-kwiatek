@@ -37,16 +37,13 @@ class CompanyControllerIntegrationTest extends AbstractControllerTest{
     }
 
     def "returns correct ids when companies added"() {
-        given:
-        def companyToAdd = company(1)
-
         expect:
-        def id = addOneCompany(companyToAdd)
-        addOneCompany(companyToAdd) == id + 1
-        addOneCompany(companyToAdd) == id + 2
-        addOneCompany(companyToAdd) == id + 3
-        addOneCompany(companyToAdd) == id + 4
-        addOneCompany(companyToAdd) == id + 5
+        def id = addOneCompany(company(1))
+        addOneCompany(company(2)) == id + 1
+        addOneCompany(company(3)) == id + 2
+        addOneCompany(company(4)) == id + 3
+        addOneCompany(company(5)) == id + 4
+        addOneCompany(company(6)) == id + 5
     }
 
     def "getting existing company by id returns appropriate company"() {

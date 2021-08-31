@@ -28,21 +28,21 @@ public class CompanyController implements CompanyApi {
     @Override
     public ResponseEntity<Company> getSingleCompanyById(@PathVariable int id) {
         return companyService.getById(id)
-                .map(invoice -> ResponseEntity.ok().body(invoice))
+                .map(company -> ResponseEntity.ok().body(company))
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @Override
     public ResponseEntity<?> deleteById(@PathVariable int id) {
         return companyService.delete(id)
-                .map(invoice -> ResponseEntity.noContent().build())
+                .map(company -> ResponseEntity.noContent().build())
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @Override
     public ResponseEntity<?> update(@PathVariable int id, @RequestBody Company updatedCompany) {
         return companyService.update(id, updatedCompany)
-                .map(invoice -> ResponseEntity.noContent().build())
+                .map(company -> ResponseEntity.noContent().build())
                 .orElse(ResponseEntity.notFound().build());
     }
 }
