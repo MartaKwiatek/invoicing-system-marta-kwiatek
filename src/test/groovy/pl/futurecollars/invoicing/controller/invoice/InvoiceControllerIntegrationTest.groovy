@@ -1,14 +1,17 @@
-package pl.futurecollars.invoicing.controller
+package pl.futurecollars.invoicing.controller.invoice
 
 import org.springframework.http.MediaType
+import pl.futurecollars.invoicing.controller.AbstractControllerTest
 import pl.futurecollars.invoicing.model.Invoice
-import spock.lang.Shared
+import spock.lang.Unroll
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import static pl.futurecollars.invoicing.TestHelpers.invoice
+import static pl.futurecollars.invoicing.TestHelpers.resetIds
 
-class InvoiceControllerTest extends ControllerTest {
+@Unroll
+class InvoiceControllerIntegrationTest extends AbstractControllerTest {
 
     def setup() {
         deleteAllInvoices()
@@ -29,7 +32,7 @@ class InvoiceControllerTest extends ControllerTest {
 
         then:
         howManyInvoices == invoices.size()
-        invoicesToAdd == invoices.sort{it.id}
+        resetIds(invoicesToAdd) == resetIds(invoices)
     }
 
     def "returns correct ids when invoices added"() {
@@ -51,7 +54,7 @@ class InvoiceControllerTest extends ControllerTest {
         Invoice invoiceToFind = invoicesToAdd.get(4)
 
         then:
-        getInvoiceById(invoiceToFind.getId()) == invoiceToFind
+        resetIds(getInvoiceById(invoiceToFind.getId())) == resetIds(invoiceToFind)
     }
 
     def "returns 404 not found status when trying to get invoice by non-existent id [#id]"() {
@@ -103,7 +106,7 @@ class InvoiceControllerTest extends ControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent())
 
-        getInvoiceById(id) == updatedInvoice
+        resetIds(getInvoiceById(id)) == resetIds(updatedInvoice)
     }
 
     def "returns 404 not found status when trying to update invoice by non-existent id [#id]"() {
