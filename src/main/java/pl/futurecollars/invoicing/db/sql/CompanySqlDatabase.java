@@ -68,7 +68,7 @@ public class CompanySqlDatabase extends AbstractSqlDatabase implements Database<
     private RowMapper<Company> companyRowMapper() {
         return (rs, rowNr) -> Company.builder()
                 .id(rs.getLong("id"))
-                .taxIdNumber(rs.getString("tax_id"))
+                .taxIdNumber(rs.getString("tax_identification_number"))
                 .name(rs.getString("name"))
                 .address(rs.getString("address"))
                 .healthInsurance(rs.getBigDecimal("health_insurance"))

@@ -64,7 +64,7 @@ class CompanyControllerIntegrationTest extends AbstractControllerTest{
                 .andExpect(status().isNotFound())
 
         where:
-        id << [-100, -2, -1, 0, 168, 1256]
+        id << [-100, -2, -1, 0, 1256]
     }
 
     def "all companies are successfully deleted from the database"() {
@@ -88,7 +88,7 @@ class CompanyControllerIntegrationTest extends AbstractControllerTest{
                 .andExpect(status().isNotFound())
 
         where:
-        id << [-100, -2, -1, 0, 168, 1256]
+        id << [-100, -2, -1, 0, 1256]
     }
 
     def "company is successfully updated"() {
