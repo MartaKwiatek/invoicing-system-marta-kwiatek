@@ -1,5 +1,6 @@
-package pl.futurecollars.invoicing.controller
+package pl.futurecollars.invoicing.controller.tax
 
+import pl.futurecollars.invoicing.controller.AbstractControllerTest
 import pl.futurecollars.invoicing.model.Car
 import pl.futurecollars.invoicing.model.Company
 import pl.futurecollars.invoicing.model.Invoice
@@ -10,7 +11,7 @@ import java.time.LocalDate
 
 import static pl.futurecollars.invoicing.TestHelpers.company
 
-class TaxCalculatorControllerTest extends ControllerTest {
+class TaxCalculatorControllerTest extends AbstractControllerTest {
 
     def "zeros are returned when no invoices were created"() {
         when:

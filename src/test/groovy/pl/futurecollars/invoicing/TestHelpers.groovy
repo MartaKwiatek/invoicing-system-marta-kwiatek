@@ -11,7 +11,7 @@ class TestHelpers {
     static company(long id) {
         Company.builder()
         .taxIdNumber("$id")
-        .address("ul. Bukowińska 24d/$id 02-703 Warszawa, Polska")
+        .address("ul. Bukowinska 24d/$id 02-703 Warszawa, Polska")
         .name("iCode Trust $id Sp. z o.o")
         .healthInsurance((BigDecimal.valueOf(id) * BigDecimal.valueOf(200)).setScale(2))
         .pensionInsurance((BigDecimal.valueOf(id) * BigDecimal.valueOf(50)).setScale(2))
@@ -35,5 +35,18 @@ class TestHelpers {
         .seller(company(id))
         .entries((1..id).collect({ product(it) }))
         .build()
+    }
+
+    static Invoice resetIds(Invoice invoice) {
+        invoice.getBuyer().id = null
+        invoice.getSeller().id = null
+        invoice.entries.forEach {
+            it.id = null
+        }
+        invoice
+    }
+
+    static List<Invoice> resetIds(List<Invoice> invoices) {
+        invoices.forEach{ invoice -> resetIds(invoice) }
     }
 }

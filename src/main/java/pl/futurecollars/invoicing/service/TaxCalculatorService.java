@@ -3,6 +3,7 @@ package pl.futurecollars.invoicing.service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,14 +17,14 @@ import pl.futurecollars.invoicing.model.InvoiceEntry;
 @AllArgsConstructor
 public class TaxCalculatorService {
 
-    private final Database database;
+    private final Database<Invoice> database;
 
     public BigDecimal income(String taxIdNumber) {
-        return database.visit(sellerPredicate(taxIdNumber), InvoiceEntry::getPrice);
+        return visit(sellerPredicate(taxIdNumber), InvoiceEntry::getPrice);
     }
 
     public BigDecimal costs(String taxIdNumber) {
-        return database.visit(buyerPredicate(taxIdNumber), this::getCostsIncludingPersonalExpense);
+        return visit(buyerPredicate(taxIdNumber), this::getCostsIncludingPersonalExpense);
     }
 
     private BigDecimal getCostsIncludingPersonalExpense(InvoiceEntry invoiceEntry) {
@@ -37,11 +38,11 @@ public class TaxCalculatorService {
     }
 
     public BigDecimal incomingVat(String taxIdNumber) {
-        return database.visit(sellerPredicate(taxIdNumber), InvoiceEntry::getVatValue);
+        return visit(sellerPredicate(taxIdNumber), InvoiceEntry::getVatValue);
     }
 
     public BigDecimal outgoingVat(Company company) {
-        return database.visit(buyerPredicate(company.getTaxIdNumber()), this::getVatValueIncludingPersonalExpense);
+        return visit(buyerPredicate(company.getTaxIdNumber()), this::getVatValueIncludingPersonalExpense);
     }
 
     private BigDecimal getVatValueIncludingPersonalExpense(InvoiceEntry invoiceEntry) {
@@ -89,5 +90,13 @@ public class TaxCalculatorService {
 
     private Predicate<Invoice> sellerPredicate(String taxIdNumber) {
         return invoice -> invoice.getSeller().getTaxIdNumber().equals(taxIdNumber);
+    }
+
+    private BigDecimal visit(Predicate<Invoice> filterRules, Function<InvoiceEntry, BigDecimal> amountToSelect) {
+        return database.getAll().stream()
+                .filter(filterRules)
+                .flatMap(invoice -> invoice.getEntries().stream())
+                .map(amountToSelect)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

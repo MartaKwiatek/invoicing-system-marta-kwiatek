@@ -9,7 +9,7 @@ import pl.futurecollars.invoicing.model.Company;
 import pl.futurecollars.invoicing.service.TaxResult;
 
 @RequestMapping(value = "taxes", produces = {"application/json;charset=UTF-8"})
-@Api(tags = {"taxes"})
+@Api(tags = {"tax-controller"})
 public interface TaxCalculatorApi {
 
     @ApiOperation(value =

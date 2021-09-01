@@ -1,23 +1,26 @@
 package pl.futurecollars.invoicing.service;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.List;
 
 public class IdService {
 
     private static long id = 1;
     private final Path idFilePath;
+    private final FilesService filesService;
 
-    public IdService(Path idFilePath) {
+    public IdService(Path idFilePath, FilesService filesService) {
         this.idFilePath = idFilePath;
+        this.filesService = filesService;
+
         try {
-            File idFile = new File(String.valueOf(idFilePath));
-            if (Files.readString(Paths.get(String.valueOf(idFilePath))).isEmpty()) {
-                idFile.createNewFile();
-                Files.writeString(idFilePath, String.valueOf(id));
+            List<String> lines = filesService.readAllLines(idFilePath);
+            if (lines.isEmpty()) {
+                filesService.writeToFile(idFilePath, "1");
+            } else {
+                id = Integer.parseInt(lines.get(0));
             }
         } catch (IOException exception) {
             System.out.println("Creation of idFile failed");
