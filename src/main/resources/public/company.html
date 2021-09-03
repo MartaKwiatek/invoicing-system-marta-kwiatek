@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Invoicing System</title>
+    <link rel="stylesheet" href="company.css">
+    <script src="company.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.js"
+            integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+            crossorigin="anonymous"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+          crossorigin="anonymous">
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+            crossorigin="anonymous"></script>
+</head>
+<body>
+
+<div class="container">
+    <h2>Add company:</h2>
+    <br/>
+
+    <form id="addCompanyForm" action="http://localhost:7777/companies" method="POST">
+        <label for="taxIdNumber">Tax identification number:</label><br>
+        <input type="text" id="taxIdNumber" name="taxIdNumber"><br><br>
+
+        <label for="address">Address:</label><br>
+        <input type="text" id="address" name="address"><br><br>
+
+        <label for="name">Name:</label><br>
+        <input type="text" id="name" name="name"><br><br>
+
+        <label for="healthInsurance">Health Insurance:</label><br>
+        <input type="text" id="healthInsurance" name="healthInsurance"><br><br>
+
+        <label for="pensionInsurance">Pension Insurance:</label><br>
+        <input type="text" id="pensionInsurance" name="pensionInsurance"><br><br>
+
+        <input type="submit">
+    </form>
+    <br/>
+    <br/>
+</div>
+
+<div class="container">
+    <h2>Companies:</h2>
+    <br/>
+
+    <table id="companiesTable" class="table table-striped">
+        <tr>
+            <th>Tax identification number</th>
+            <th>Address</th>
+            <th>Name</th>
+            <th>Health Insurance</th>
+            <th>Pension Insurance</th>
+        </tr>
+    </table>
+</div>
+
+</body>
+</html>
