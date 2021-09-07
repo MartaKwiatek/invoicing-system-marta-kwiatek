@@ -42,6 +42,7 @@ describe('AppComponent', () => {
     fixture.detectChanges();
     const mainPage = fixture.nativeElement;
     expect(app.companies.length).toBe(2);
+    expect(mainPage.textContent).toContain('111-111-11-11ul. First 1First Ltd.1111.11111.11');
     expect(mainPage.textContent).toContain('222-222-22-22ul. Second 2Second Ltd.2222.22222.22');
 
     const createCompanyButton = mainPage.querySelector("#createCompanyButton");
