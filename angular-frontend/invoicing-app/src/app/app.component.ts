@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CompanyService } from './company.service';
-import { Company } from './model/company';
+import { Company } from './company';
 
 @Component({
   selector: 'app-root',
