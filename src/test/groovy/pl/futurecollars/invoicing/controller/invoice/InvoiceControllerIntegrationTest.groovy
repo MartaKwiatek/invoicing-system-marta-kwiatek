@@ -5,6 +5,7 @@ import pl.futurecollars.invoicing.controller.AbstractControllerTest
 import pl.futurecollars.invoicing.model.Invoice
 import spock.lang.Unroll
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import static pl.futurecollars.invoicing.TestHelpers.invoice
@@ -86,7 +87,7 @@ class InvoiceControllerIntegrationTest extends AbstractControllerTest {
         addInvoices(10)
 
         expect:
-        mockMvc.perform(delete("$INVOICES_ENDPOINT/$id"))
+        mockMvc.perform(delete("$INVOICES_ENDPOINT/$id").with(csrf()))
                 .andExpect(status().isNotFound())
 
         where:
@@ -101,7 +102,7 @@ class InvoiceControllerIntegrationTest extends AbstractControllerTest {
         def updatedInvoiceAsJson = jsonService.objectToJsonString(updatedInvoice)
 
         expect:
-        mockMvc.perform(put("$INVOICES_ENDPOINT/$id")
+        mockMvc.perform(put("$INVOICES_ENDPOINT/$id").with(csrf())
                 .content(updatedInvoiceAsJson)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent())
@@ -115,7 +116,7 @@ class InvoiceControllerIntegrationTest extends AbstractControllerTest {
         def updatedInvoice = jsonService.objectToJsonString(invoice(9))
 
         expect:
-        mockMvc.perform(put("$INVOICES_ENDPOINT/$id")
+        mockMvc.perform(put("$INVOICES_ENDPOINT/$id").with(csrf())
                 .content(updatedInvoice)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())

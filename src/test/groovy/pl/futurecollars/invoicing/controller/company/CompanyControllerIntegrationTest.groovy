@@ -5,6 +5,7 @@ import pl.futurecollars.invoicing.controller.AbstractControllerTest
 import pl.futurecollars.invoicing.model.Company
 import spock.lang.Unroll
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
@@ -84,7 +85,7 @@ class CompanyControllerIntegrationTest extends AbstractControllerTest{
         addCompanies(10)
 
         expect:
-        mockMvc.perform(delete("$COMPANIES_ENDPOINT/$id"))
+        mockMvc.perform(delete("$COMPANIES_ENDPOINT/$id").with(csrf()))
                 .andExpect(status().isNotFound())
 
         where:
@@ -99,7 +100,7 @@ class CompanyControllerIntegrationTest extends AbstractControllerTest{
         def updatedCompanyAsJson = jsonService.objectToJsonString(updatedCompany)
 
         expect:
-        mockMvc.perform(put("$COMPANIES_ENDPOINT/$id")
+        mockMvc.perform(put("$COMPANIES_ENDPOINT/$id").with(csrf())
                 .content(updatedCompanyAsJson)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent())
@@ -113,7 +114,7 @@ class CompanyControllerIntegrationTest extends AbstractControllerTest{
         def updatedCompany = jsonService.objectToJsonString(company(9))
 
         expect:
-        mockMvc.perform(put("$COMPANIES_ENDPOINT/$id")
+        mockMvc.perform(put("$COMPANIES_ENDPOINT/$id").with(csrf())
                 .content(updatedCompany)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
