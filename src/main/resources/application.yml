@@ -4,12 +4,14 @@ server:
 spring:
   main:
     allow-bean-definition-overriding: true
-
   profiles:
     active: memory
-
   flyway:
     enabled: false
+  security:
+    user:
+      name: marta
+      password: abc123
 
 logging:
   level:
