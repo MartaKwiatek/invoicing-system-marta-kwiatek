@@ -13,6 +13,11 @@ spring:
       name: marta
       password: abc123
 
+invoicing-system:
+  allowedOrigins: http://localhost:4200
+  csrf:
+    disable: true
+
 logging:
   level:
     root: INFO
